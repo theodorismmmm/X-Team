@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Veriff – Identitätsverifizierung</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0b0f1a;
+      --card:     #141929;
+      --border:   #252d44;
+      --accent:   #3b5bfc;
+      --accent2:  #00c2ff;
+      --text:     #e4e8f5;
+      --muted:    #7b84a8;
+      --success:  #22c55e;
+      --radius:   14px;
+      --trans:    .35s ease;
+    }
+
+    html { height: 100%; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    /* ── Card ─────────────────────────────────────────────────── */
+    .v-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 52px 44px 44px;
+      max-width: 460px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 32px 80px rgba(0,0,0,.55);
+    }
+
+    /* ── Logo / header ────────────────────────────────────────── */
+    .v-logo {
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: var(--accent2);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .v-logo span { color: var(--accent); }
+    .v-tagline {
+      font-size: .75rem;
+      color: var(--muted);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 36px;
+    }
+
+    /* ── Session ID ───────────────────────────────────────────── */
+    .v-session-label {
+      font-size: .72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .v-session-id {
+      font-family: 'Courier New', monospace;
+      font-size: .85rem;
+      color: var(--accent2);
+      background: rgba(0,194,255,.07);
+      border: 1px solid rgba(0,194,255,.18);
+      border-radius: 8px;
+      padding: 8px 14px;
+      letter-spacing: 2px;
+      word-break: break-all;
+      margin-bottom: 32px;
+    }
+
+    /* ── Progress steps ───────────────────────────────────────── */
+    .v-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-bottom: 36px;
+      text-align: left;
+    }
+    .v-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      opacity: .35;
+      transition: opacity var(--trans);
+    }
+    .v-step:last-child { border-bottom: none; }
+    .v-step.active  { opacity: 1; }
+    .v-step.done    { opacity: 1; }
+    .v-step-dot {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .7rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+      transition: all var(--trans);
+    }
+    .v-step.active .v-step-dot {
+      border-color: var(--accent);
+      background: transparent;
+      animation: pulse-dot 1s ease infinite;
+    }
+    .v-step.done .v-step-dot {
+      border-color: var(--success);
+      background: var(--success);
+      color: #fff;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(59,91,252,.5); }
+      50%       { box-shadow: 0 0 0 6px rgba(59,91,252,0); }
+    }
+    .v-step-info h4 { font-size: .9rem; font-weight: 700; margin-bottom: 2px; }
+    .v-step-info p  { font-size: .78rem; color: var(--muted); }
+
+    /* ── Spinner ──────────────────────────────────────────────── */
+    .v-spinner {
+      width: 48px; height: 48px;
+      border: 4px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .75s linear infinite;
+      margin: 0 auto 28px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Status text ──────────────────────────────────────────── */
+    .v-status {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .v-status-sub {
+      font-size: .82rem;
+      color: var(--muted);
+      margin-bottom: 28px;
+      line-height: 1.55;
+    }
+
+    /* ── Code reveal ──────────────────────────────────────────── */
+    .v-code-wrap {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .v-code-wrap.visible { display: flex; }
+    .v-code-label { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+    .v-code {
+      font-size: 3rem;
+      font-weight: 900;
+      letter-spacing: 12px;
+      color: var(--accent2);
+      text-shadow: 0 0 24px rgba(0,194,255,.4);
+      animation: popIn .4s cubic-bezier(.34,1.56,.64,1) forwards;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.6); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+    .v-redirect-note {
+      font-size: .8rem;
+      color: var(--muted);
+    }
+    .v-redirect-note strong { color: var(--accent2); }
+
+    /* ── Footer ───────────────────────────────────────────────── */
+    .v-footer {
+      margin-top: 20px;
+      font-size: .7rem;
+      color: var(--muted);
+    }
+
+    /* ── Kicked screen ────────────────────────────────────────── */
+    #screen-kicked { display: none; }
+    #screen-kicked.visible { display: block; }
+    .kicked-icon { font-size: 3rem; margin-bottom: 18px; }
+    .kicked-title { font-size: 1.3rem; font-weight: 900; margin-bottom: 10px; }
+    .kicked-msg { color: var(--muted); font-size: .92rem; line-height: 1.65; margin-bottom: 28px; }
+    .kicked-btn {
+      display: inline-block;
+      padding: 12px 32px;
+      background: var(--accent);
+      color: #fff; border: none;
+      border-radius: 10px;
+      font-size: .95rem; font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background var(--trans), transform var(--trans);
+    }
+    .kicked-btn:hover { background: #2a47e8; transform: translateY(-1px); }
+
+    /* ── Notification toast ───────────────────────────────────── */
+    #toast {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-80px);
+      background: #dc2626;
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-size: .9rem;
+      font-weight: 700;
+      box-shadow: 0 8px 24px rgba(0,0,0,.4);
+      transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+      z-index: 9999;
+      white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<div id="toast">⚠️ Bitte versuche es erneut</div>
+
+<div class="v-card">
+
+  <!-- Normal verification flow -->
+  <div id="screen-verify">
+    <div class="v-logo">Ver<span>iff</span></div>
+    <div class="v-tagline">Identity Verification</div>
+
+    <div class="v-session-label">Session ID</div>
+    <div class="v-session-id" id="session-id">Generiere…</div>
+
+    <div class="v-steps">
+      <div class="v-step" id="step-0">
+        <div class="v-step-dot" id="dot-0"></div>
+        <div class="v-step-info">
+          <h4>Identität prüfen</h4>
+          <p>Deine Angaben werden verifiziert</p>
+        </div>
+      </div>
+      <div class="v-step" id="step-1">
+        <div class="v-step-dot" id="dot-1"></div>
+        <div class="v-step-info">
+          <h4>Dokumente scannen</h4>
+          <p>Sicherheitsmerkmal-Überprüfung</p>
+        </div>
+      </div>
+      <div class="v-step" id="step-2">
+        <div class="v-step-dot" id="dot-2"></div>
+        <div class="v-step-info">
+          <h4>Abschluss</h4>
+          <p>Verifizierung wird abgeschlossen</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="v-spinner" id="spinner"></div>
+
+    <div class="v-status" id="status-text">Verifizierung läuft…</div>
+    <div class="v-status-sub" id="status-sub">Bitte warte einen Moment.</div>
+
+    <div class="v-code-wrap" id="code-wrap">
+      <div class="v-code-label">Dein Bestätigungscode</div>
+      <div class="v-code" id="code-display">––––</div>
+      <div class="v-redirect-note">Weiterleitung in <strong id="countdown">3</strong> Sekunden…</div>
+    </div>
+  </div>
+
+  <!-- Kicked / refreshed screen -->
+  <div id="screen-kicked">
+    <div class="kicked-icon">🚫</div>
+    <div class="kicked-title">Sitzung abgelaufen</div>
+    <div class="kicked-msg">
+      Du hast die Seite neu geladen und die Verifizierungs-Sitzung wurde beendet.<br>
+      Bitte starte den Prozess erneut.
+    </div>
+    <a class="kicked-btn" id="retry-btn" href="#">← Erneut versuchen</a>
+  </div>
+
+  <div class="v-footer">🔒 Sichere Verbindung · Daten werden nicht gespeichert</div>
+</div>
+
+<script>
+  /* ── Read origin from URL param ─────────────────────────────── */
+  const params = new URLSearchParams(window.location.search);
+  const origin = params.get('origin') || '';
+
+  /* ── Kick-on-refresh detection ──────────────────────────────── */
+  const SESSION_KEY = 'veriff_session_active';
+
+  if (sessionStorage.getItem(SESSION_KEY)) {
+    /* Page was refreshed – kick the user */
+    kickUser();
+  } else {
+    /* First visit – mark session active and start flow */
+    sessionStorage.setItem(SESSION_KEY, '1');
+    runVerification();
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+   * Kicked state
+   * ───────────────────────────────────────────────────────────── */
+  function kickUser() {
+    document.getElementById('screen-verify').style.display = 'none';
+    const kicked = document.getElementById('screen-kicked');
+    kicked.classList.add('visible');
+
+    /* Set retry link to origin or fallback to index */
+    const retryUrl = origin ? decodeURIComponent(origin) : 'index.html';
+    document.getElementById('retry-btn').href = retryUrl;
+
+    /* Show toast notification */
+    const toast = document.getElementById('toast');
+    setTimeout(function() { toast.classList.add('show'); }, 200);
+    setTimeout(function() { toast.classList.remove('show'); }, 3500);
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+   * Verification flow
+   * ───────────────────────────────────────────────────────────── */
+  function runVerification() {
+    /* Generate 24-char random ID */
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let id = '';
+    const array = new Uint8Array(24);
+    crypto.getRandomValues(array);
+    for (let i = 0; i < 24; i++) {
+      id += chars[array[i] % chars.length];
+    }
+    document.getElementById('session-id').textContent = id;
+
+    /* Randomly pick one of the two valid codes */
+    const CODES = ['4912', '3099'];
+    const code = CODES[Math.floor(Math.random() * CODES.length)];
+
+    /* Animate steps */
+    const stepTimings = [0, 800, 1700];
+    stepTimings.forEach(function(delay, i) {
+      setTimeout(function() {
+        /* Mark previous step done */
+        if (i > 0) {
+          const prev = document.getElementById('step-' + (i - 1));
+          prev.classList.remove('active');
+          prev.classList.add('done');
+          document.getElementById('dot-' + (i - 1)).textContent = '✓';
+        }
+        document.getElementById('step-' + i).classList.add('active');
+      }, delay);
+    });
+
+    /* After last step done (2.6 s), show code */
+    setTimeout(function() {
+      const last = document.getElementById('step-2');
+      last.classList.remove('active');
+      last.classList.add('done');
+      document.getElementById('dot-2').textContent = '✓';
+
+      document.getElementById('spinner').style.display = 'none';
+      document.getElementById('status-text').textContent = 'Verifizierung erfolgreich!';
+      document.getElementById('status-sub').textContent = 'Dein persönlicher Code wurde generiert.';
+      document.getElementById('code-display').textContent = code;
+      document.getElementById('code-wrap').classList.add('visible');
+
+      /* Countdown + redirect */
+      let remaining = 3;
+      const counter = document.getElementById('countdown');
+      const interval = setInterval(function() {
+        remaining--;
+        counter.textContent = remaining;
+        if (remaining <= 0) {
+          clearInterval(interval);
+          redirectBack(code);
+        }
+      }, 1000);
+    }, 2700);
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+   * Redirect back to origin with code in URL param
+   * ───────────────────────────────────────────────────────────── */
+  function redirectBack(code) {
+    if (!origin) {
+      /* Fallback */
+      window.location.href = 'index.html?vcode=' + code;
+      return;
+    }
+    const base = decodeURIComponent(origin);
+    const sep  = base.includes('?') ? '&' : '?';
+    window.location.href = base + sep + 'vcode=' + code;
+  }
+</script>
+</body>
+</html>
