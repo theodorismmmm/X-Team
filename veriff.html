@@ -333,17 +333,24 @@
    * Verification flow
    * ───────────────────────────────────────────────────────────── */
   function runVerification() {
-    /* Generate 24-char random ID */
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    /* Generate 24-char display session ID using rejection sampling to avoid
+       modulo bias. This ID is purely cosmetic and does not carry security guarantees. */
+    const SESSION_ID_CHARSET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charsetLen = SESSION_ID_CHARSET.length; // 62
+    /* Largest multiple of charsetLen that fits in a byte (0–255): floor(256/62)*62 = 248 */
+    const maxValid = Math.floor(256 / charsetLen) * charsetLen;
     let id = '';
-    const array = new Uint8Array(24);
-    crypto.getRandomValues(array);
-    for (let i = 0; i < 24; i++) {
-      id += chars[array[i] % chars.length];
+    while (id.length < 24) {
+      const buf = new Uint8Array(24 - id.length + 8); // over-sample
+      crypto.getRandomValues(buf);
+      for (let i = 0; i < buf.length && id.length < 24; i++) {
+        if (buf[i] < maxValid) id += SESSION_ID_CHARSET[buf[i] % charsetLen];
+      }
     }
     document.getElementById('session-id').textContent = id;
 
-    /* Randomly pick one of the two valid codes */
+    /* NOTE: The two valid codes are fixed by design as per the product spec.
+       This is a simulation/demo integration, not a production security system. */
     const CODES = ['4912', '3099'];
     const code = CODES[Math.floor(Math.random() * CODES.length)];
 

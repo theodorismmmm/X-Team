@@ -1540,7 +1540,10 @@
     const code = [0,1,2,3].map(i => document.getElementById('cd' + i).value).join('');
     if (code.length < 4) return;
 
-    /* Hide submit button, hide inputs, show spinner – manual entry never completes */
+    /* Hide submit button, hide inputs, show spinner – manual entry never completes.
+       SECURITY: Manual code entry is intentionally blocked to prevent bypass attacks.
+       Users must complete the full Veriff redirect flow. The spinner runs indefinitely
+       to signal that the action is processing while giving no useful response. */
     document.getElementById('code-submit-btn').classList.add('hidden');
     document.getElementById('code-input-row').style.opacity = '0.3';
     document.getElementById('code-spinner').classList.remove('hidden');
