@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>X-Team – Preise & Pakete</title>
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #0d0f1a;
+      --surface:  #161928;
+      --card:     #1e2235;
+      --border:   #2d3152;
+      --accent1:  #6c63ff;
+      --accent2:  #00d4ff;
+      --gold:     #ffd700;
+      --text:     #e8eaf6;
+      --muted:    #8b92b8;
+      --success:  #4caf50;
+      --radius:   14px;
+      --trans:    .35s ease;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Utility ──────────────────────────────────────────────────── */
+    .hidden { display: none !important; }
+    .fade-in { animation: fadeIn .5s ease forwards; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:none; } }
+
+    /* ── Header ───────────────────────────────────────────────────── */
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 40px;
+      background: rgba(13,15,26,.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo { font-size: 1.6rem; font-weight: 800; letter-spacing: 1px; }
+    .logo span { color: var(--accent1); }
+    nav a {
+      color: var(--muted); text-decoration: none; margin-left: 28px;
+      font-size: .9rem; transition: color var(--trans);
+    }
+    nav a:hover { color: var(--text); }
+
+    /* ── Progress bar ─────────────────────────────────────────────── */
+    #progress-bar {
+      display: flex; justify-content: center; gap: 8px;
+      padding: 20px 40px 0;
+    }
+    .step-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--border); transition: background var(--trans);
+    }
+    .step-dot.active { background: var(--accent1); }
+    .step-dot.done   { background: var(--accent2); }
+
+    /* ── Section wrapper ──────────────────────────────────────────── */
+    .section {
+      max-width: 1200px; margin: 0 auto; padding: 60px 24px;
+    }
+    h1 { font-size: 2.6rem; font-weight: 800; text-align: center; margin-bottom: 12px; }
+    h2 { font-size: 1.9rem; font-weight: 700; text-align: center; margin-bottom: 10px; }
+    .subtitle {
+      text-align: center; color: var(--muted); font-size: 1.05rem; margin-bottom: 48px;
+    }
+
+    /* ── Start screen ─────────────────────────────────────────────── */
+    #screen-start .hero {
+      text-align: center; padding: 40px 0 60px;
+    }
+    #screen-start .hero h1 { font-size: 3.2rem; line-height: 1.2; }
+    #screen-start .hero h1 span { color: var(--accent1); }
+    #screen-start .hero p  { color: var(--muted); font-size: 1.15rem; margin: 16px 0 48px; }
+    .start-cards {
+      display: flex; gap: 28px; justify-content: center; flex-wrap: wrap;
+    }
+    .start-card {
+      background: var(--card); border: 2px solid var(--border);
+      border-radius: var(--radius); padding: 48px 40px;
+      width: 320px; text-align: center; cursor: pointer;
+      transition: border-color var(--trans), transform var(--trans), box-shadow var(--trans);
+    }
+    .start-card:hover {
+      border-color: var(--accent1);
+      transform: translateY(-6px);
+      box-shadow: 0 16px 40px rgba(108,99,255,.25);
+    }
+    .start-card .icon { font-size: 3.2rem; margin-bottom: 18px; }
+    .start-card h3 { font-size: 1.3rem; margin-bottom: 10px; }
+    .start-card p { color: var(--muted); font-size: .93rem; }
+
+    /* ── Website type selection ───────────────────────────────────── */
+    .plan-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .plan-card {
+      background: var(--card); border: 2px solid var(--border);
+      border-radius: var(--radius); padding: 36px 28px;
+      display: flex; flex-direction: column; gap: 14px;
+      cursor: pointer; position: relative; overflow: hidden;
+      transition: border-color var(--trans), transform var(--trans), box-shadow var(--trans);
+    }
+    .plan-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(108,99,255,.06), transparent);
+      opacity: 0; transition: opacity var(--trans);
+    }
+    .plan-card:hover { border-color: var(--accent1); transform: translateY(-5px); box-shadow: 0 14px 36px rgba(108,99,255,.2); }
+    .plan-card:hover::before { opacity: 1; }
+    .plan-card.selected { border-color: var(--accent1); box-shadow: 0 0 0 4px rgba(108,99,255,.25); }
+    .plan-card .badge {
+      position: absolute; top: 14px; right: 14px;
+      background: var(--accent1); color: #fff;
+      font-size: .72rem; font-weight: 700; padding: 4px 10px; border-radius: 20px;
+    }
+    .plan-card .badge.gold { background: var(--gold); color: #000; }
+    .plan-card .plan-icon { font-size: 2.4rem; }
+    .plan-card h3 { font-size: 1.25rem; font-weight: 700; }
+    .plan-card .price { font-size: 2rem; font-weight: 800; color: var(--accent1); }
+    .plan-card .price small { font-size: .85rem; color: var(--muted); font-weight: 400; }
+    .plan-card ul { list-style: none; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .plan-card ul li { font-size: .9rem; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+    .plan-card ul li::before { content: '✓'; color: var(--accent2); font-weight: 700; }
+    .plan-card ul li.dim::before { content: '✗'; color: #555; }
+    .plan-card ul li.dim { color: #555; }
+
+    /* Hosting card specific */
+    .hosting-card .price { color: var(--accent2); }
+    .hosting-card.diamond { border-color: var(--gold); }
+    .hosting-card.diamond .price { color: var(--gold); }
+    .hosting-card.diamond:hover { box-shadow: 0 14px 36px rgba(255,215,0,.25); }
+
+    /* ── Add-ons ──────────────────────────────────────────────────── */
+    .addon-card {
+      background: var(--card); border: 2px solid var(--border);
+      border-radius: var(--radius); padding: 32px 28px; margin-bottom: 24px;
+    }
+    .addon-card h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+    .addon-card .addon-desc { color: var(--muted); font-size: .92rem; margin-bottom: 22px; }
+
+    /* slider area */
+    .slider-group { margin-bottom: 20px; }
+    .slider-label { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: .9rem; }
+    .slider-label span { color: var(--accent2); font-weight: 700; }
+    input[type=range] {
+      -webkit-appearance: none; width: 100%; height: 6px;
+      background: var(--border); border-radius: 3px; outline: none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
+      background: var(--accent1); cursor: pointer;
+      box-shadow: 0 0 8px rgba(108,99,255,.6);
+    }
+    .addon-total {
+      font-size: 1.6rem; font-weight: 800; color: var(--accent1);
+      margin: 16px 0;
+    }
+    .addon-total small { font-size: .85rem; color: var(--muted); font-weight: 400; }
+
+    /* toggle switch */
+    .addon-toggle {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .toggle {
+      position: relative; width: 52px; height: 28px;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; inset: 0; background: var(--border);
+      border-radius: 28px; cursor: pointer; transition: background var(--trans);
+    }
+    .toggle-slider::before {
+      content: ''; position: absolute; left: 4px; top: 4px;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: #fff; transition: transform var(--trans);
+    }
+    .toggle input:checked + .toggle-slider { background: var(--accent1); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(24px); }
+
+    /* ── Buttons ──────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 28px; border-radius: 10px; border: none;
+      font-size: .95rem; font-weight: 700; cursor: pointer;
+      transition: transform var(--trans), box-shadow var(--trans), background var(--trans);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent1), #9c64ff);
+      color: #fff;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(108,99,255,.4); }
+    .btn-secondary {
+      background: transparent; color: var(--accent1);
+      border: 2px solid var(--accent1);
+    }
+    .btn-secondary:hover { background: rgba(108,99,255,.1); transform: translateY(-2px); }
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold), #ffa500);
+      color: #000;
+    }
+    .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,215,0,.35); }
+    .btn-calc {
+      background: linear-gradient(135deg, var(--accent2), #0098c7);
+      color: #000; font-weight: 800;
+    }
+    .btn-calc:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,212,255,.35); }
+
+    .nav-btns {
+      display: flex; gap: 14px; justify-content: flex-end; margin-top: 36px; flex-wrap: wrap;
+    }
+
+    /* ── Summary bar ──────────────────────────────────────────────── */
+    #summary-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--surface); border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 40px; z-index: 99; flex-wrap: wrap; gap: 12px;
+    }
+    #summary-bar .s-items { display: flex; gap: 16px; flex-wrap: wrap; }
+    .s-chip {
+      background: var(--border); border-radius: 20px;
+      padding: 5px 14px; font-size: .82rem; color: var(--text);
+    }
+    .s-chip.accent { background: rgba(108,99,255,.3); }
+    #summary-total { font-size: 1.2rem; font-weight: 800; color: var(--accent2); }
+
+    /* ── Contact ──────────────────────────────────────────────────── */
+    .contact-box {
+      background: var(--card); border: 2px solid var(--border);
+      border-radius: var(--radius); padding: 48px; max-width: 620px; margin: 0 auto;
+    }
+    .contact-box h2 { margin-bottom: 8px; text-align: left; }
+    .contact-box p { color: var(--muted); margin-bottom: 28px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+    .form-group label { font-size: .9rem; color: var(--muted); }
+    .form-group input, .form-group textarea {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 9px; padding: 12px 16px; color: var(--text);
+      font-size: .95rem; outline: none; transition: border-color var(--trans);
+    }
+    .form-group input:focus, .form-group textarea:focus { border-color: var(--accent1); }
+    .form-group textarea { resize: vertical; min-height: 100px; }
+
+    /* ── Upgrade path ─────────────────────────────────────────────── */
+    #screen-upgrade .upgrade-box {
+      background: var(--card); border: 2px solid var(--border);
+      border-radius: var(--radius); padding: 40px; max-width: 680px; margin: 0 auto;
+    }
+    .upgrade-options { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 18px; margin-bottom: 30px; }
+    .upgrade-opt {
+      background: var(--surface); border: 2px solid var(--border);
+      border-radius: 10px; padding: 22px 18px; text-align: center; cursor: pointer;
+      transition: border-color var(--trans), transform var(--trans);
+    }
+    .upgrade-opt:hover { border-color: var(--accent1); transform: translateY(-4px); }
+    .upgrade-opt.selected { border-color: var(--accent1); background: rgba(108,99,255,.1); }
+    .upgrade-opt .u-icon { font-size: 2rem; margin-bottom: 8px; }
+    .upgrade-opt h4 { font-size: 1rem; margin-bottom: 4px; }
+    .upgrade-opt .u-price { color: var(--accent1); font-weight: 700; }
+
+    /* ── Responsive ───────────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      h1 { font-size: 2rem; }
+      header { padding: 14px 20px; }
+      .section { padding: 40px 16px 100px; }
+      #summary-bar { padding: 12px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ───────────────── HEADER ───────────────── -->
+<header>
+  <div class="logo">X-<span>Team</span></div>
+  <nav>
+    <a href="#" onclick="goHome()">Start</a>
+    <a href="#screen-contact" onclick="showSection('screen-contact')">Kontakt</a>
+  </nav>
+</header>
+
+<!-- ───────────────── PROGRESS BAR ───────────────── -->
+<div id="progress-bar" class="hidden">
+  <div class="step-dot" id="dot-1"></div>
+  <div class="step-dot" id="dot-2"></div>
+  <div class="step-dot" id="dot-3"></div>
+  <div class="step-dot" id="dot-4"></div>
+</div>
+
+<!-- ═══════════════ SCREEN: START ═══════════════ -->
+<div id="screen-start">
+  <div class="section">
+    <div class="hero fade-in">
+      <h1>Willkommen bei <span>X-Team</span> 👋</h1>
+      <p>Wir bauen professionelle Websites – schnell, modern & zuverlässig.</p>
+      <div class="start-cards">
+        <div class="start-card" onclick="startNewWebsite()">
+          <div class="icon">🌐</div>
+          <h3>Neue Website bauen lassen</h3>
+          <p>Von Grund auf eine maßgeschneiderte Website – einfach bis professionell.</p>
+          <br/>
+          <span class="btn btn-primary" style="width:100%;justify-content:center;">Anfang →</span>
+        </div>
+        <div class="start-card" onclick="startUpgrade()">
+          <div class="icon">⚡</div>
+          <h3>Existierende Website upgraden</h3>
+          <p>Verbessere Performance, Design & Features deiner bestehenden Website.</p>
+          <br/>
+          <span class="btn btn-secondary" style="width:100%;justify-content:center;">Upgrade starten →</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: UPGRADE PATH ═══════════════ -->
+<div id="screen-upgrade" class="hidden">
+  <div class="section fade-in">
+    <h2>⚡ Website Upgrade</h2>
+    <p class="subtitle">Wähle das passende Upgrade-Paket für deine bestehende Website</p>
+
+    <div class="upgrade-box">
+      <h3 style="margin-bottom:20px;">Welchen Bereich möchtest du upgraden?</h3>
+      <div class="upgrade-options">
+        <div class="upgrade-opt" onclick="selectUpgradeOpt(this,'Design Refresh')">
+          <div class="u-icon">🎨</div>
+          <h4>Design Refresh</h4>
+          <div class="u-price">ab 19.99€</div>
+        </div>
+        <div class="upgrade-opt" onclick="selectUpgradeOpt(this,'Performance Boost')">
+          <div class="u-icon">🚀</div>
+          <h4>Performance Boost</h4>
+          <div class="u-price">ab 29.99€</div>
+        </div>
+        <div class="upgrade-opt" onclick="selectUpgradeOpt(this,'SEO & Sicherheit')">
+          <div class="u-icon">🔒</div>
+          <h4>SEO & Sicherheit</h4>
+          <div class="u-price">ab 39.99€</div>
+        </div>
+        <div class="upgrade-opt" onclick="selectUpgradeOpt(this,'Full Upgrade')">
+          <div class="u-icon">⭐</div>
+          <h4>Full Upgrade</h4>
+          <div class="u-price">ab 79.99€</div>
+        </div>
+      </div>
+      <div id="upgrade-summary" class="hidden" style="margin-bottom:20px;">
+        <div class="addon-total" id="upgrade-price-display">ab 19.99€</div>
+        <p style="color:var(--muted);font-size:.9rem;">+ individuelle Anpassungen nach Vereinbarung</p>
+      </div>
+      <div class="nav-btns" style="justify-content:space-between;">
+        <button class="btn btn-secondary" onclick="goHome()">← Zurück</button>
+        <button class="btn btn-primary" id="btn-upgrade-contact" onclick="goToContact('upgrade')" style="display:none;">
+          Jetzt anfragen →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: STEP 1 – WEBSITE TYPE ═══════════════ -->
+<div id="screen-website-type" class="hidden">
+  <div class="section fade-in">
+    <h2>🌐 Welche Art von Website brauchst du?</h2>
+    <p class="subtitle">Wähle das Paket, das zu deinen Anforderungen passt</p>
+
+    <div class="plan-grid">
+      <!-- Einfach -->
+      <div class="plan-card" onclick="selectWebsiteType(this,'Einfache Website',17.99)" id="wt-simple">
+        <div class="plan-icon">🛠️</div>
+        <h3>Einfach</h3>
+        <div class="price">ab 17.99€ <small>/Monat</small></div>
+        <ul>
+          <li>Bis zu 5 Seiten</li>
+          <li>Responsives Design</li>
+          <li>Kontaktformular</li>
+          <li>Basis SEO</li>
+          <li class="dim">Online-Shop</li>
+          <li class="dim">Individuelle Animationen</li>
+          <li class="dim">Mehrsprachigkeit</li>
+        </ul>
+      </div>
+
+      <!-- Standart -->
+      <div class="plan-card" onclick="selectWebsiteType(this,'Standart Website',39.99)" id="wt-standard">
+        <div class="badge">Beliebt</div>
+        <div class="plan-icon">💼</div>
+        <h3>Standart</h3>
+        <div class="price">ab 39.99€ <small>/Monat</small></div>
+        <ul>
+          <li>Bis zu 15 Seiten</li>
+          <li>Responsives Design</li>
+          <li>Kontaktformular</li>
+          <li>Erweitertes SEO</li>
+          <li>Einfacher Online-Shop</li>
+          <li>Basis-Animationen</li>
+          <li class="dim">Mehrsprachigkeit</li>
+        </ul>
+      </div>
+
+      <!-- Professionell -->
+      <div class="plan-card" onclick="selectWebsiteType(this,'Professionelle Website',79.99)" id="wt-pro">
+        <div class="badge" style="background:linear-gradient(135deg,var(--gold),#ffa500);color:#000;">Pro</div>
+        <div class="plan-icon">🏆</div>
+        <h3>Professionell</h3>
+        <div class="price">ab 79.99€ <small>/Monat</small></div>
+        <ul>
+          <li>Unbegrenzte Seiten</li>
+          <li>Responsives Design</li>
+          <li>Alle Formulare & Integrationen</li>
+          <li>Full SEO-Optimierung</li>
+          <li>Vollständiger Online-Shop</li>
+          <li>Individuelle Animationen</li>
+          <li>Mehrsprachigkeit</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-secondary" onclick="goHome()">← Zurück</button>
+      <button class="btn btn-primary" id="btn-next-hosting" onclick="goToHosting()" style="display:none;">
+        Weiter zu Hosting →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: STEP 2 – HOSTING ═══════════════ -->
+<div id="screen-hosting" class="hidden">
+  <div class="section fade-in">
+    <h2>🖥️ Wähle dein Hosting-Paket</h2>
+    <p class="subtitle">Alle Pakete + Domain Gebühren (einmalig). Abrechnung alle 3 Monate.</p>
+
+    <div class="plan-grid">
+      <!-- Basic -->
+      <div class="plan-card hosting-card" onclick="selectHosting(this,'Basic Hosting',30)" id="h-basic">
+        <div class="plan-icon">⚙️</div>
+        <h3>Basic Hosting</h3>
+        <div class="price">30€ <small>/3 Monate + Domain</small></div>
+        <ul>
+          <li>Bis zu 500 Besucher/Monat</li>
+          <li>1 GB Speicher</li>
+          <li>SSL-Zertifikat (HTTPS)</li>
+          <li>99% Uptime Garantie</li>
+          <li>E-Mail Support</li>
+          <li class="dim">CDN (schnellere Ladezeit)</li>
+          <li class="dim">Tägliche Backups</li>
+          <li class="dim">Prioritäts-Support</li>
+        </ul>
+      </div>
+
+      <!-- Standart Hosting -->
+      <div class="plan-card hosting-card" onclick="selectHosting(this,'Standart Hosting',60)" id="h-standard">
+        <div class="badge">Empfohlen</div>
+        <div class="plan-icon">🚀</div>
+        <h3>Standart Hosting</h3>
+        <div class="price">60€ <small>/3 Monate + Domain</small></div>
+        <ul>
+          <li>Bis zu 5.000 Besucher/Monat</li>
+          <li>10 GB Speicher</li>
+          <li>SSL-Zertifikat (HTTPS)</li>
+          <li>99.9% Uptime Garantie</li>
+          <li>E-Mail & Chat Support</li>
+          <li>CDN (schnellere Ladezeit)</li>
+          <li>Tägliche Backups</li>
+          <li class="dim">Prioritäts-Support</li>
+        </ul>
+      </div>
+
+      <!-- Pro Hosting -->
+      <div class="plan-card hosting-card" onclick="selectHosting(this,'Pro Hosting',90)" id="h-pro">
+        <div class="badge" style="background:linear-gradient(135deg,var(--gold),#ffa500);color:#000;">Pro</div>
+        <div class="plan-icon">⭐</div>
+        <h3>Pro Hosting</h3>
+        <div class="price">90€ <small>/3 Monate + Domain</small></div>
+        <ul>
+          <li>Bis zu 50.000 Besucher/Monat</li>
+          <li>50 GB Speicher</li>
+          <li>SSL-Zertifikat (HTTPS)</li>
+          <li>99.99% Uptime Garantie</li>
+          <li>24/7 Prioritäts-Support</li>
+          <li>CDN (schnellere Ladezeit)</li>
+          <li>Stündliche Backups</li>
+          <li>Dedizierte Ressourcen</li>
+        </ul>
+      </div>
+
+      <!-- Diamant Hosting -->
+      <div class="plan-card hosting-card diamond" onclick="selectHosting(this,'Diamant Hosting',120)" id="h-diamond">
+        <div class="badge gold">💎 Diamant</div>
+        <div class="plan-icon">💎</div>
+        <h3>Diamant Hosting</h3>
+        <div class="price">120€ <small>/3 Monate</small></div>
+        <ul>
+          <li>Unbegrenzte Besucher</li>
+          <li>200 GB Speicher</li>
+          <li>Alle Pro-Features</li>
+          <li>Reservierungssystem</li>
+          <li>Support Live-Chat Integration</li>
+          <li>Business E-Mail Adresse</li>
+          <li>Persönlicher Account-Manager</li>
+          <li>White-Glove Onboarding</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-secondary" onclick="showSection('screen-website-type')">← Zurück</button>
+      <button class="btn btn-primary" id="btn-next-addons" onclick="goToAddons()" style="display:none;">
+        Weiter zu Add-ons →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: STEP 3 – ADD-ONS ═══════════════ -->
+<div id="screen-addons" class="hidden">
+  <div class="section fade-in">
+    <h2>🎯 Optionale Add-ons</h2>
+    <p class="subtitle">Erweitere dein Paket mit leistungsstarken Zusatzfunktionen</p>
+
+    <!-- Add-on 1: Werbung & Reichweite -->
+    <div class="addon-card">
+      <div class="addon-toggle">
+        <h3>📣 Werbung & mehr Reichweite erzielen</h3>
+        <label class="toggle">
+          <input type="checkbox" id="toggle-ads" onchange="toggleAddon('ads', this.checked)" />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <p class="addon-desc">
+        Schalte zielgerichtete Online-Werbung (Google Ads, Social Media) und erreiche mehr potenzielle Kunden.
+        Steigere deine Sichtbarkeit und generiere mehr Traffic auf deiner Website.
+      </p>
+
+      <div id="addon-ads-detail" class="hidden">
+        <div class="slider-group">
+          <div class="slider-label">
+            <label for="slider-visits">📈 Gewünschte Besucher / Monat</label>
+            <span id="val-visits">1.000</span>
+          </div>
+          <input type="range" id="slider-visits" min="500" max="50000" step="500" value="1000"
+                 oninput="updateAdsPrice()" />
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <label for="slider-protection">🛡️ Website Schutz / Monat</label>
+            <span id="val-protection">Basic</span>
+          </div>
+          <input type="range" id="slider-protection" min="0" max="2" step="1" value="0"
+                 oninput="updateAdsPrice()" />
+        </div>
+
+        <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-top:8px;">
+          <div>
+            <div style="color:var(--muted);font-size:.85rem;">Geschätzter Preis</div>
+            <div class="addon-total" id="ads-price-display">29.99€ <small>/Monat</small></div>
+          </div>
+          <button class="btn btn-calc" onclick="calcAds()">🔢 Ausrechnen</button>
+        </div>
+
+        <div id="ads-calc-result" class="hidden" style="
+          background:var(--surface); border:1px solid var(--border);
+          border-radius:10px; padding:18px; margin-top:16px;">
+          <div style="font-size:.9rem;color:var(--muted);margin-bottom:10px;">Kostenaufschlüsselung:</div>
+          <div id="ads-breakdown"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add-on 2: Web Upgrades -->
+    <div class="addon-card">
+      <div class="addon-toggle">
+        <h3>⚡ Web Upgrades</h3>
+        <label class="toggle">
+          <input type="checkbox" id="toggle-upgrade" onchange="toggleAddon('upgrade', this.checked)" />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <p class="addon-desc">
+        Upgrade deine bestehende oder neue Website mit erweiterten Features: Shop-Integration,
+        Buchungssystem, Live-Chat, erweiterte Analyse-Tools und mehr.
+      </p>
+
+      <div id="addon-upgrade-detail" class="hidden">
+        <div class="upgrade-options" style="margin-bottom:16px;">
+          <div class="upgrade-opt" onclick="selectWebUpgrade(this,'Design Refresh',19.99)">
+            <div class="u-icon">🎨</div>
+            <h4>Design Refresh</h4>
+            <div class="u-price">ab 19.99€</div>
+          </div>
+          <div class="upgrade-opt" onclick="selectWebUpgrade(this,'Performance Boost',29.99)">
+            <div class="u-icon">🚀</div>
+            <h4>Performance Boost</h4>
+            <div class="u-price">ab 29.99€</div>
+          </div>
+          <div class="upgrade-opt" onclick="selectWebUpgrade(this,'Feature Bundle',49.99)">
+            <div class="u-icon">🧩</div>
+            <h4>Feature Bundle</h4>
+            <div class="u-price">ab 49.99€</div>
+          </div>
+          <div class="upgrade-opt" onclick="selectWebUpgrade(this,'Full Upgrade',79.99)">
+            <div class="u-icon">⭐</div>
+            <h4>Full Upgrade</h4>
+            <div class="u-price">ab 79.99€</div>
+          </div>
+        </div>
+        <div id="webupgrade-price" class="hidden">
+          <div class="addon-total" id="webupgrade-price-display">ab 19.99€</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add-on 3: Website Schutz Paket -->
+    <div class="addon-card">
+      <div class="addon-toggle">
+        <h3>🔒 Website Schutz-Paket</h3>
+        <label class="toggle">
+          <input type="checkbox" id="toggle-security" onchange="toggleAddon('security', this.checked)" />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <p class="addon-desc">
+        Schütze deine Website vor Angriffen, Datenverlust und Ausfällen.
+        Inkl. Firewall, Malware-Scanner, DDoS-Schutz und regelmäßigen Sicherheits-Audits.
+      </p>
+
+      <div id="addon-security-detail" class="hidden">
+        <div class="plan-grid" style="margin-bottom:16px;">
+          <div class="plan-card" style="padding:20px;" onclick="selectSecurity(this,'Basic Schutz',9.99)">
+            <div class="plan-icon" style="font-size:1.6rem;">🛡️</div>
+            <h3 style="font-size:1rem;">Basic Schutz</h3>
+            <div class="price" style="font-size:1.4rem;">9.99€ <small>/Monat</small></div>
+            <ul>
+              <li>SSL Zertifikat</li>
+              <li>Basis Firewall</li>
+              <li class="dim">DDoS-Schutz</li>
+            </ul>
+          </div>
+          <div class="plan-card" style="padding:20px;" onclick="selectSecurity(this,'Pro Schutz',24.99)">
+            <div class="badge">Empfohlen</div>
+            <div class="plan-icon" style="font-size:1.6rem;">🔐</div>
+            <h3 style="font-size:1rem;">Pro Schutz</h3>
+            <div class="price" style="font-size:1.4rem;">24.99€ <small>/Monat</small></div>
+            <ul>
+              <li>Alles aus Basic</li>
+              <li>DDoS-Schutz</li>
+              <li>Malware-Scanner</li>
+            </ul>
+          </div>
+          <div class="plan-card" style="padding:20px;" onclick="selectSecurity(this,'Ultimate Schutz',49.99)">
+            <div class="plan-icon" style="font-size:1.6rem;">🏰</div>
+            <h3 style="font-size:1rem;">Ultimate Schutz</h3>
+            <div class="price" style="font-size:1.4rem;">49.99€ <small>/Monat</small></div>
+            <ul>
+              <li>Alles aus Pro</li>
+              <li>24/7 Monitoring</li>
+              <li>Sicherheits-Audit</li>
+            </ul>
+          </div>
+        </div>
+        <div id="security-price" class="hidden">
+          <div class="addon-total" id="security-price-display">9.99€ <small>/Monat</small></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-secondary" onclick="showSection('screen-hosting')">← Zurück</button>
+      <button class="btn btn-primary" onclick="goToContact('new')">
+        Weiter zur Anfrage →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: STEP 4 – CONTACT ═══════════════ -->
+<div id="screen-contact" class="hidden">
+  <div class="section fade-in">
+    <h2>📬 Interessiert?</h2>
+    <p class="subtitle">Schick uns deine Anfrage – wir melden uns innerhalb von 24 Stunden!</p>
+
+    <div class="contact-box">
+      <h2>Jetzt anfragen</h2>
+      <p>Füll das Formular aus und wir erstellen dir ein individuelles Angebot.</p>
+
+      <!-- Selected summary -->
+      <div id="contact-summary" style="
+        background:var(--surface); border:1px solid var(--border);
+        border-radius:10px; padding:16px; margin-bottom:24px;
+        font-size:.9rem; color:var(--muted); display:none;">
+        <strong style="color:var(--text);">Deine Auswahl:</strong>
+        <div id="contact-summary-items" style="margin-top:8px;"></div>
+        <div style="margin-top:10px; font-size:1.05rem;">
+          <strong style="color:var(--accent2);">Geschätzter Gesamtpreis: </strong>
+          <span id="contact-total-price" style="color:var(--accent2); font-weight:800;"></span>
+        </div>
+      </div>
+
+      <form onsubmit="submitForm(event)">
+        <div class="form-group">
+          <label>Dein Name *</label>
+          <input type="text" placeholder="Max Mustermann" required />
+        </div>
+        <div class="form-group">
+          <label>E-Mail Adresse *</label>
+          <input type="email" id="contact-email" placeholder="deine@email.de" required />
+        </div>
+        <div class="form-group">
+          <label>Telefon (optional)</label>
+          <input type="tel" placeholder="+49 123 456789" />
+        </div>
+        <div class="form-group">
+          <label>Deine Nachricht</label>
+          <textarea placeholder="Erzähl uns von deinem Projekt…"></textarea>
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <button type="submit" class="btn btn-primary" style="flex:1;justify-content:center;">
+            ✉️ Anfrage senden
+          </button>
+          <button type="button" class="btn btn-gold" onclick="sendEmail()" style="flex:1;justify-content:center;">
+            📧 Per E-Mail kontaktieren
+          </button>
+        </div>
+      </form>
+
+      <div id="form-success" class="hidden" style="
+        text-align:center; padding:32px; color:var(--success);">
+        <div style="font-size:3rem;margin-bottom:12px;">✅</div>
+        <h3>Anfrage gesendet!</h3>
+        <p style="color:var(--muted);margin-top:8px;">Wir melden uns so schnell wie möglich bei dir.</p>
+      </div>
+    </div>
+
+    <div class="nav-btns" style="justify-content:center;margin-top:24px;">
+      <button class="btn btn-secondary" onclick="goHome()">🏠 Zur Startseite</button>
+    </div>
+  </div>
+</div>
+
+<!-- ───────────────── SUMMARY BAR ───────────────── -->
+<div id="summary-bar" style="display:none;">
+  <div class="s-items" id="summary-chips"></div>
+  <div id="summary-total">0.00€</div>
+</div>
+
+<!-- ═══════════════ JAVASCRIPT ═══════════════ -->
+<script>
+  /* ── State ─────────────────────────────────────────────────────── */
+  const state = {
+    path: null,           // 'new' | 'upgrade'
+    websiteType: null,
+    websitePrice: 0,
+    hosting: null,
+    hostingPrice: 0,
+    addons: { ads: false, upgrade: false, security: false },
+    adsPrice: 0,
+    upgradeType: null,
+    upgradePrice: 0,
+    webUpgradeType: null,
+    webUpgradePrice: 0,
+    securityType: null,
+    securityPrice: 0,
+  };
+
+  /* ── Section helpers ───────────────────────────────────────────── */
+  const screens = [
+    'screen-start','screen-upgrade','screen-website-type',
+    'screen-hosting','screen-addons','screen-contact'
+  ];
+
+  function showSection(id) {
+    screens.forEach(s => document.getElementById(s).classList.add('hidden'));
+    const el = document.getElementById(id);
+    el.classList.remove('hidden');
+    el.querySelector('.fade-in') || el.classList.add('fade-in');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    updateProgress(id);
+    updateSummaryBar();
+  }
+
+  function goHome() {
+    Object.assign(state, {
+      path:null, websiteType:null, websitePrice:0,
+      hosting:null, hostingPrice:0,
+      addons:{ads:false,upgrade:false,security:false},
+      adsPrice:0, upgradePrice:0, webUpgradePrice:0, securityPrice:0
+    });
+    document.querySelectorAll('.plan-card.selected,.upgrade-opt.selected').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('input[type=checkbox]').forEach(c => { c.checked = false; });
+    ['addon-ads-detail','addon-upgrade-detail','addon-security-detail'].forEach(id => {
+      document.getElementById(id).classList.add('hidden');
+    });
+    document.getElementById('progress-bar').classList.add('hidden');
+    document.getElementById('summary-bar').style.display = 'none';
+    showSection('screen-start');
+  }
+
+  /* ── Progress dots ─────────────────────────────────────────────── */
+  const stepMap = {
+    'screen-website-type': 1,
+    'screen-hosting': 2,
+    'screen-addons': 3,
+    'screen-contact': 4,
+  };
+  function updateProgress(id) {
+    const pb = document.getElementById('progress-bar');
+    if (!stepMap[id]) { pb.classList.add('hidden'); return; }
+    pb.classList.remove('hidden');
+    const cur = stepMap[id];
+    for (let i = 1; i <= 4; i++) {
+      const dot = document.getElementById('dot-' + i);
+      dot.classList.remove('active','done');
+      if (i < cur) dot.classList.add('done');
+      else if (i === cur) dot.classList.add('active');
+    }
+  }
+
+  /* ── Start path ─────────────────────────────────────────────────── */
+  function startNewWebsite() {
+    state.path = 'new';
+    showSection('screen-website-type');
+  }
+  function startUpgrade() {
+    state.path = 'upgrade';
+    showSection('screen-upgrade');
+  }
+
+  /* ── Upgrade path ───────────────────────────────────────────────── */
+  function selectUpgradeOpt(el, name) {
+    document.querySelectorAll('#screen-upgrade .upgrade-opt').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    const priceMap = { 'Design Refresh': 19.99, 'Performance Boost': 29.99, 'SEO & Sicherheit': 39.99, 'Full Upgrade': 79.99 };
+    state.upgradeType = name;
+    state.upgradePrice = priceMap[name] || 19.99;
+    document.getElementById('upgrade-price-display').textContent = 'ab ' + state.upgradePrice.toFixed(2) + '€';
+    document.getElementById('upgrade-summary').classList.remove('hidden');
+    document.getElementById('btn-upgrade-contact').style.display = 'inline-flex';
+  }
+
+  /* ── Website type ────────────────────────────────────────────────── */
+  function selectWebsiteType(el, name, price) {
+    document.querySelectorAll('#screen-website-type .plan-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    state.websiteType = name;
+    state.websitePrice = price;
+    document.getElementById('btn-next-hosting').style.display = 'inline-flex';
+    updateSummaryBar();
+  }
+
+  function goToHosting() {
+    if (!state.websiteType) return alert('Bitte wähle zuerst eine Website-Art aus.');
+    showSection('screen-hosting');
+  }
+
+  /* ── Hosting ─────────────────────────────────────────────────────── */
+  function selectHosting(el, name, price) {
+    document.querySelectorAll('#screen-hosting .plan-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    state.hosting = name;
+    state.hostingPrice = price;
+    document.getElementById('btn-next-addons').style.display = 'inline-flex';
+    updateSummaryBar();
+  }
+
+  function goToAddons() {
+    if (!state.hosting) return alert('Bitte wähle zuerst ein Hosting-Paket aus.');
+    showSection('screen-addons');
+  }
+
+  /* ── Add-ons ─────────────────────────────────────────────────────── */
+  function toggleAddon(id, enabled) {
+    state.addons[id] = enabled;
+    const detailId = 'addon-' + id + '-detail';
+    document.getElementById(detailId).classList.toggle('hidden', !enabled);
+    if (!enabled) {
+      if (id === 'ads') state.adsPrice = 0;
+      if (id === 'upgrade') state.webUpgradePrice = 0;
+      if (id === 'security') state.securityPrice = 0;
+    }
+    updateSummaryBar();
+  }
+
+  /* Ads sliders */
+  function updateAdsPrice() {
+    const visits = parseInt(document.getElementById('slider-visits').value);
+    const prot   = parseInt(document.getElementById('slider-protection').value);
+    document.getElementById('val-visits').textContent = visits.toLocaleString('de-DE');
+    const protLabels = ['Kein Schutz', 'Basic Schutz', 'Pro Schutz'];
+    document.getElementById('val-protection').textContent = protLabels[prot];
+
+    const adBase   = Math.max(9.99, (visits / 1000) * 5.99);
+    const protCost = [0, 9.99, 24.99][prot];
+    state.adsPrice = adBase + protCost;
+
+    document.getElementById('ads-price-display').innerHTML =
+      state.adsPrice.toFixed(2) + '€ <small>/Monat</small>';
+    updateSummaryBar();
+    // hide old calc result if sliders moved
+    document.getElementById('ads-calc-result').classList.add('hidden');
+  }
+
+  function calcAds() {
+    const visits = parseInt(document.getElementById('slider-visits').value);
+    const prot   = parseInt(document.getElementById('slider-protection').value);
+    const adBase   = Math.max(9.99, (visits / 1000) * 5.99);
+    const protCost = [0, 9.99, 24.99][prot];
+    const total    = adBase + protCost;
+    const protLabels = ['Kein Schutz (+0€)', 'Basic Schutz (+9.99€)', 'Pro Schutz (+24.99€)'];
+    document.getElementById('ads-breakdown').innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;justify-content:space-between;">
+          <span>📈 Werbebudget (${visits.toLocaleString('de-DE')} Besucher)</span>
+          <strong>${adBase.toFixed(2)}€/Monat</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span>🛡️ ${protLabels[prot]}</span>
+          <strong>${protCost.toFixed(2)}€/Monat</strong>
+        </div>
+        <hr style="border-color:var(--border);margin:4px 0;"/>
+        <div style="display:flex;justify-content:space-between;font-size:1.05rem;">
+          <strong>Gesamt</strong>
+          <strong style="color:var(--accent2);">${total.toFixed(2)}€/Monat</strong>
+        </div>
+      </div>`;
+    document.getElementById('ads-calc-result').classList.remove('hidden');
+  }
+
+  /* Web Upgrades (add-on 2) */
+  function selectWebUpgrade(el, name, price) {
+    document.querySelectorAll('#addon-upgrade-detail .upgrade-opt').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    state.webUpgradeType = name;
+    state.webUpgradePrice = price;
+    document.getElementById('webupgrade-price-display').textContent = 'ab ' + price.toFixed(2) + '€';
+    document.getElementById('webupgrade-price').classList.remove('hidden');
+    updateSummaryBar();
+  }
+
+  /* Security (add-on 3) */
+  function selectSecurity(el, name, price) {
+    document.querySelectorAll('#addon-security-detail .plan-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    state.securityType = name;
+    state.securityPrice = price;
+    document.getElementById('security-price-display').innerHTML =
+      price.toFixed(2) + '€ <small>/Monat</small>';
+    document.getElementById('security-price').classList.remove('hidden');
+    updateSummaryBar();
+  }
+
+  /* ── Contact ──────────────────────────────────────────────────────── */
+  function goToContact(path) {
+    showSection('screen-contact');
+    // build summary
+    const items = [];
+    if (path === 'upgrade') {
+      if (state.upgradeType) items.push('Upgrade: ' + state.upgradeType);
+    } else {
+      if (state.websiteType) items.push(state.websiteType);
+      if (state.hosting) items.push(state.hosting);
+      if (state.addons.ads) items.push('Werbung & Reichweite');
+      if (state.addons.upgrade && state.webUpgradeType) items.push('Web Upgrade: ' + state.webUpgradeType);
+      if (state.addons.security && state.securityType) items.push(state.securityType);
+    }
+    const total = calcTotal();
+    if (items.length > 0) {
+      document.getElementById('contact-summary').style.display = 'block';
+      document.getElementById('contact-summary-items').innerHTML =
+        items.map(i => `<span class="s-chip" style="display:inline-block;margin:2px 4px 2px 0;">${i}</span>`).join('');
+      document.getElementById('contact-total-price').textContent = total;
+    }
+  }
+
+  function submitForm(e) {
+    e.preventDefault();
+    document.querySelector('.contact-box form').style.display = 'none';
+    document.getElementById('form-success').classList.remove('hidden');
+  }
+
+  function sendEmail() {
+    const email = document.getElementById('contact-email').value || 'info@x-team.de';
+    const subject = encodeURIComponent('Website Anfrage – X-Team');
+    const body = encodeURIComponent('Hallo X-Team,\n\nich interessiere mich für eure Dienstleistungen.\n\nMeine Auswahl:\n' + buildEmailBody());
+    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+  }
+
+  function buildEmailBody() {
+    const lines = [];
+    if (state.websiteType) lines.push('Website: ' + state.websiteType + ' (ab ' + state.websitePrice.toFixed(2) + '€/Monat)');
+    if (state.hosting) lines.push('Hosting: ' + state.hosting + ' (' + state.hostingPrice.toFixed(2) + '€/3 Monate)');
+    if (state.addons.ads) lines.push('Werbung & Reichweite: ' + state.adsPrice.toFixed(2) + '€/Monat');
+    if (state.addons.upgrade && state.webUpgradeType) lines.push('Web Upgrade: ' + state.webUpgradeType + ' (ab ' + state.webUpgradePrice.toFixed(2) + '€)');
+    if (state.addons.security && state.securityType) lines.push('Website Schutz: ' + state.securityType + ' (' + state.securityPrice.toFixed(2) + '€/Monat)');
+    if (state.upgradeType) lines.push('Upgrade: ' + state.upgradeType + ' (ab ' + state.upgradePrice.toFixed(2) + '€)');
+    return lines.join('\n') || '(Keine Auswahl getroffen)';
+  }
+
+  /* ── Summary bar ──────────────────────────────────────────────────── */
+  function calcTotal() {
+    if (state.path === 'upgrade') {
+      return (state.upgradePrice > 0 ? 'ab ' + state.upgradePrice.toFixed(2) + '€' : '0.00€');
+    }
+    // monthly equivalent: hosting/3 + website + addons
+    const monthly = (state.hostingPrice / 3) + state.websitePrice +
+      (state.addons.ads ? state.adsPrice : 0) +
+      (state.addons.upgrade ? state.webUpgradePrice : 0) +
+      (state.addons.security ? state.securityPrice : 0);
+    return monthly.toFixed(2) + '€/Monat';
+  }
+
+  function updateSummaryBar() {
+    const chips = [];
+    if (state.websiteType) chips.push({ label: state.websiteType });
+    if (state.hosting)     chips.push({ label: state.hosting, accent: true });
+    if (state.addons.ads)  chips.push({ label: '📣 Werbung' });
+    if (state.addons.upgrade && state.webUpgradeType) chips.push({ label: '⚡ Upgrade' });
+    if (state.addons.security && state.securityType)  chips.push({ label: '🔒 Schutz' });
+
+    const bar = document.getElementById('summary-bar');
+    if (chips.length === 0 && !state.upgradeType) { bar.style.display = 'none'; return; }
+    bar.style.display = 'flex';
+
+    document.getElementById('summary-chips').innerHTML =
+      chips.map(c => `<span class="s-chip${c.accent?' accent':''}">${c.label}</span>`).join('');
+    document.getElementById('summary-total').textContent = calcTotal();
+  }
+
+  /* ── Init ─────────────────────────────────────────────────────────── */
+  showSection('screen-start');
+</script>
+</body>
+</html>
