@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Veriff – Identitätsverifizierung</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0b0f1a;
+      --card:     #141929;
+      --border:   #252d44;
+      --accent:   #3b5bfc;
+      --accent2:  #00c2ff;
+      --text:     #e4e8f5;
+      --muted:    #7b84a8;
+      --success:  #22c55e;
+      --radius:   14px;
+      --trans:    .35s ease;
+    }
+
+    html { height: 100%; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    /* ── Card ─────────────────────────────────────────────────── */
+    .v-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 52px 44px 44px;
+      max-width: 460px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 32px 80px rgba(0,0,0,.55);
+    }
+
+    /* ── Logo / header ────────────────────────────────────────── */
+    .v-logo {
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: var(--accent2);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .v-logo span { color: var(--accent); }
+    .v-tagline {
+      font-size: .75rem;
+      color: var(--muted);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 36px;
+    }
+
+    /* ── Session ID ───────────────────────────────────────────── */
+    .v-session-label {
+      font-size: .72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .v-session-id {
+      font-family: 'Courier New', monospace;
+      font-size: .85rem;
+      color: var(--accent2);
+      background: rgba(0,194,255,.07);
+      border: 1px solid rgba(0,194,255,.18);
+      border-radius: 8px;
+      padding: 8px 14px;
+      letter-spacing: 2px;
+      word-break: break-all;
+      margin-bottom: 32px;
+    }
+
+    /* ── Progress steps ───────────────────────────────────────── */
+    .v-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-bottom: 36px;
+      text-align: left;
+    }
+    .v-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      opacity: .35;
+      transition: opacity var(--trans);
+    }
+    .v-step:last-child { border-bottom: none; }
+    .v-step.active  { opacity: 1; }
+    .v-step.done    { opacity: 1; }
+    .v-step-dot {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .7rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+      transition: all var(--trans);
+    }
+    .v-step.active .v-step-dot {
+      border-color: var(--accent);
+      background: transparent;
+      animation: pulse-dot 1s ease infinite;
+    }
+    .v-step.done .v-step-dot {
+      border-color: var(--success);
+      background: var(--success);
+      color: #fff;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(59,91,252,.5); }
+      50%       { box-shadow: 0 0 0 6px rgba(59,91,252,0); }
+    }
+    .v-step-info h4 { font-size: .9rem; font-weight: 700; margin-bottom: 2px; }
+    .v-step-info p  { font-size: .78rem; color: var(--muted); }
+
+    /* ── Spinner ──────────────────────────────────────────────── */
+    .v-spinner {
+      width: 48px; height: 48px;
+      border: 4px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .75s linear infinite;
+      margin: 0 auto 28px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Status text ──────────────────────────────────────────── */
+    .v-status {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .v-status-sub {
+      font-size: .82rem;
+      color: var(--muted);
+      margin-bottom: 28px;
+      line-height: 1.55;
+    }
+
+    /* ── Code reveal ──────────────────────────────────────────── */
+    .v-code-wrap {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .v-code-wrap.visible { display: flex; }
+    .v-code-label { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+    .v-code {
+      font-size: 3rem;
+      font-weight: 900;
+      letter-spacing: 12px;
+      color: var(--accent2);
+      text-shadow: 0 0 24px rgba(0,194,255,.4);
+      animation: popIn .4s cubic-bezier(.34,1.56,.64,1) forwards;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.6); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+    .v-redirect-note {
+      font-size: .8rem;
+      color: var(--muted);
+    }
+    .v-redirect-note strong { color: var(--accent2); }
+
+    /* ── Footer ───────────────────────────────────────────────── */
+    .v-footer {
+      margin-top: 20px;
+      font-size: .7rem;
+      color: var(--muted);
+    }
+
+    /* ── Kicked screen ────────────────────────────────────────── */
+    #screen-kicked { display: none; }
+    #screen-kicked.visible { display: block; }
+    .kicked-icon { font-size: 3rem; margin-bottom: 18px; }
+    .kicked-title { font-size: 1.3rem; font-weight: 900; margin-bottom: 10px; }
+    .kicked-msg { color: var(--muted); font-size: .92rem; line-height: 1.65; margin-bottom: 28px; }
+    .kicked-btn {
+      display: inline-block;
+      padding: 12px 32px;
+      background: var(--accent);
+      color: #fff; border: none;
+      border-radius: 10px;
+      font-size: .95rem; font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background var(--trans), transform var(--trans);
+    }
+    .kicked-btn:hover { background: #2a47e8; transform: translateY(-1px); }
+
+    /* ── Notification toast ───────────────────────────────────── */
+    #toast {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-80px);
+      background: #dc2626;
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-size: .9rem;
+      font-weight: 700;
+      box-shadow: 0 8px 24px rgba(0,0,0,.4);
+      transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+      z-index: 9999;
+      white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── CAPTCHA modal (windowed) ─────────────────────────────── */
+    #captcha-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.72);
+      backdrop-filter: blur(8px);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    #captcha-overlay.visible { display: flex; }
+
+    .captcha-window {
+      background: #1a1f35;
+      border: 1px solid #3b4060;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 40px 100px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.04);
+      overflow: hidden;
+    }
+
+    /* title bar – fake OS window chrome */
+    .captcha-titlebar {
+      background: #252b45;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid #3b4060;
+    }
+    .captcha-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .captcha-dot.red    { background: #ff5f57; }
+    .captcha-dot.yellow { background: #febc2e; }
+    .captcha-dot.green  { background: #28c840; }
+    .captcha-title-text {
+      flex: 1;
+      text-align: center;
+      font-size: .75rem;
+      color: #7b84a8;
+      letter-spacing: .5px;
+    }
+
+    .captcha-body {
+      padding: 28px 28px 24px;
+      text-align: center;
+    }
+    .captcha-warn-icon { font-size: 2rem; margin-bottom: 10px; }
+    .captcha-heading {
+      font-size: .97rem;
+      font-weight: 800;
+      color: #e4e8f5;
+      margin-bottom: 4px;
+    }
+    .captcha-sub {
+      font-size: .78rem;
+      color: #7b84a8;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    /* canvas wrapper */
+    .captcha-canvas-wrap {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 16px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1.5px solid #3b4060;
+    }
+    #captcha-canvas { display: block; }
+    .captcha-refresh-btn {
+      position: absolute;
+      top: 6px; right: 6px;
+      background: rgba(0,0,0,.55);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 6px;
+      color: #c0c8e8;
+      font-size: .72rem;
+      padding: 4px 8px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .captcha-refresh-btn:hover { background: rgba(59,91,252,.55); }
+
+    .captcha-input {
+      width: 100%;
+      background: #0f1320;
+      border: 2px solid #3b4060;
+      border-radius: 8px;
+      color: #e4e8f5;
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: 6px;
+      text-align: center;
+      padding: 12px;
+      outline: none;
+      font-family: 'Courier New', monospace;
+      transition: border-color .2s, box-shadow .2s;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+    }
+    .captcha-input:focus { border-color: #3b5bfc; box-shadow: 0 0 0 3px rgba(59,91,252,.2); }
+    .captcha-input.shake {
+      animation: captchaShake .4s ease;
+    }
+    @keyframes captchaShake {
+      0%,100% { transform: translateX(0); border-color: #dc2626; }
+      20%      { transform: translateX(-6px); }
+      40%      { transform: translateX(6px); }
+      60%      { transform: translateX(-4px); }
+      80%      { transform: translateX(4px); }
+    }
+    .captcha-submit-btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #3b5bfc, #5b7fff);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: .95rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: opacity .2s, transform .15s;
+    }
+    .captcha-submit-btn:hover { opacity: .9; transform: translateY(-1px); }
+    .captcha-error {
+      font-size: .78rem;
+      color: #f87171;
+      margin-top: 8px;
+      min-height: 18px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="toast">⚠️ Bitte versuche es erneut</div>
+
+<div class="v-card">
+
+  <!-- Normal verification flow -->
+  <div id="screen-verify">
+    <div class="v-logo">Ver<span>iff</span></div>
+    <div class="v-tagline">Identity Verification</div>
+
+    <div class="v-session-label">Session ID</div>
+    <div class="v-session-id" id="session-id">Generiere…</div>
+
+    <div class="v-steps">
+      <div class="v-step" id="step-0">
+        <div class="v-step-dot" id="dot-0"></div>
+        <div class="v-step-info">
+          <h4>Identität prüfen</h4>
+          <p>Deine Angaben werden verifiziert</p>
+        </div>
+      </div>
+      <div class="v-step" id="step-1">
+        <div class="v-step-dot" id="dot-1"></div>
+        <div class="v-step-info">
+          <h4>Dokumente scannen</h4>
+          <p>Sicherheitsmerkmal-Überprüfung</p>
+        </div>
+      </div>
+      <div class="v-step" id="step-2">
+        <div class="v-step-dot" id="dot-2"></div>
+        <div class="v-step-info">
+          <h4>Abschluss</h4>
+          <p>Verifizierung wird abgeschlossen</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="v-spinner" id="spinner"></div>
+
+    <div class="v-status" id="status-text">Verifizierung läuft…</div>
+    <div class="v-status-sub" id="status-sub">Bitte warte einen Moment.</div>
+
+    <div class="v-code-wrap" id="code-wrap">
+      <div class="v-code-label">Dein Bestätigungscode</div>
+      <div class="v-code" id="code-display">––––</div>
+      <div class="v-redirect-note">Weiterleitung in <strong id="countdown">3</strong> Sekunden…</div>
+    </div>
+  </div>
+
+  <!-- Kicked / refreshed screen -->
+  <div id="screen-kicked">
+    <div class="kicked-icon">🚫</div>
+    <div class="kicked-title">Sitzung abgelaufen</div>
+    <div class="kicked-msg">
+      Du hast die Seite neu geladen und die Verifizierungs-Sitzung wurde beendet.<br>
+      Bitte starte den Prozess erneut.
+    </div>
+    <a class="kicked-btn" id="retry-btn" href="#">← Erneut versuchen</a>
+  </div>
+
+  <div class="v-footer">🔒 Sichere Verbindung · Daten werden nicht gespeichert</div>
+</div>
+
+<!-- ── CAPTCHA modal window ──────────────────────────────────── -->
+<div id="captcha-overlay">
+  <div class="captcha-window">
+    <div class="captcha-titlebar">
+      <div class="captcha-dot red"></div>
+      <div class="captcha-dot yellow"></div>
+      <div class="captcha-dot green"></div>
+      <span class="captcha-title-text">Veriff – Manuelle Verifizierung</span>
+    </div>
+    <div class="captcha-body">
+      <div class="captcha-warn-icon">⚠️</div>
+      <div class="captcha-heading">Konnte nicht automatisch verifiziert werden</div>
+      <div class="captcha-sub">Manuelle Verifizierung erforderlich.<br>Gib die 5 Zeichen aus dem Bild ein.</div>
+      <div class="captcha-canvas-wrap">
+        <canvas id="captcha-canvas" width="340" height="110"></canvas>
+        <button class="captcha-refresh-btn" onclick="refreshCaptcha()">↺ Neu</button>
+      </div>
+      <input
+        id="captcha-input"
+        class="captcha-input"
+        type="text"
+        maxlength="5"
+        autocomplete="off"
+        autocorrect="off"
+        spellcheck="false"
+        placeholder="_ _ _ _ _"
+        oninput="this.value=this.value.toUpperCase()"
+      />
+      <button class="captcha-submit-btn" onclick="submitCaptcha()">Bestätigen →</button>
+      <div class="captcha-error" id="captcha-error"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ── Read origin from URL param ─────────────────────────────── */
+  const params = new URLSearchParams(window.location.search);
+  const origin = params.get('origin') || '';
+
+  /* ── Kick-on-refresh detection ──────────────────────────────── */
+  const SESSION_KEY = 'veriff_session_active';
+
+  if (sessionStorage.getItem(SESSION_KEY)) {
+    /* Page was refreshed – kick the user */
+    kickUser();
+  } else {
+    /* First visit – mark session active and start flow */
+    sessionStorage.setItem(SESSION_KEY, '1');
+    runVerification();
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+   * Kicked state
+   * ───────────────────────────────────────────────────────────── */
+  function kickUser() {
+    document.getElementById('screen-verify').style.display = 'none';
+    const kicked = document.getElementById('screen-kicked');
+    kicked.classList.add('visible');
+
+    /* Set retry link to origin or fallback to index */
+    const retryUrl = origin ? decodeURIComponent(origin) : 'index.html';
+    document.getElementById('retry-btn').href = retryUrl;
+
+    /* Show toast notification */
+    const toast = document.getElementById('toast');
+    setTimeout(function() { toast.classList.add('show'); }, 200);
+    setTimeout(function() { toast.classList.remove('show'); }, 3500);
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+   * Verification flow
+   * ───────────────────────────────────────────────────────────── */
+
+  /* Pending code – set after verification steps, used after CAPTCHA */
+  var pendingCode = '';
+
+  function runVerification() {
+    /* Generate 24-char display session ID using rejection sampling to avoid
+       modulo bias. This ID is purely cosmetic and does not carry security guarantees. */
+    const SESSION_ID_CHARSET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charsetLen = SESSION_ID_CHARSET.length; // 62
+    /* Largest multiple of charsetLen that fits in a byte (0–255): floor(256/62)*62 = 248 */
+    const maxValid = Math.floor(256 / charsetLen) * charsetLen;
+    let id = '';
+    while (id.length < 24) {
+      const buf = new Uint8Array(24 - id.length + 8); // over-sample
+      crypto.getRandomValues(buf);
+      for (let i = 0; i < buf.length && id.length < 24; i++) {
+        if (buf[i] < maxValid) id += SESSION_ID_CHARSET[buf[i] % charsetLen];
+      }
+    }
+    document.getElementById('session-id').textContent = id;
+
+    /* NOTE: The two valid codes are fixed by design as per the product spec.
+       This is a simulation/demo integration, not a production security system. */
+    const CODES = ['4912', '3099'];
+    pendingCode = CODES[Math.floor(Math.random() * CODES.length)];
+
+    /* Animate steps */
+    const stepTimings = [0, 800, 1700];
+    stepTimings.forEach(function(delay, i) {
+      setTimeout(function() {
+        /* Mark previous step done */
+        if (i > 0) {
+          const prev = document.getElementById('step-' + (i - 1));
+          prev.classList.remove('active');
+          prev.classList.add('done');
+          document.getElementById('dot-' + (i - 1)).textContent = '✓';
+        }
+        document.getElementById('step-' + i).classList.add('active');
+      }, delay);
+    });
+
+    /* After last step, mark done and show CAPTCHA instead of auto-success */
+    setTimeout(function() {
+      const last = document.getElementById('step-2');
+      last.classList.remove('active');
+      last.classList.add('done');
+      document.getElementById('dot-2').textContent = '✓';
+
+      document.getElementById('spinner').style.display = 'none';
+      document.getElementById('status-text').textContent = 'Konnte nicht automatisch verifiziert werden';
+      document.getElementById('status-sub').textContent = 'Manuelle Verifizierung erforderlich.';
+
+      /* Show CAPTCHA modal after a short pause */
+      setTimeout(openCaptchaModal, 600);
+    }, 2700);
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+   * CAPTCHA
+   * ───────────────────────────────────────────────────────────── */
+  var captchaAnswer = '';
+
+  /* Character set: uppercase A-Z + digits 0-9, excluding visually confusing chars */
+  const CAPTCHA_CHARSET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+  function generateCaptchaText() {
+    let text = '';
+    const buf = new Uint8Array(10);
+    const cLen = CAPTCHA_CHARSET.length;
+    const maxV = Math.floor(256 / cLen) * cLen;
+    while (text.length < 5) {
+      crypto.getRandomValues(buf);
+      for (let i = 0; i < buf.length && text.length < 5; i++) {
+        if (buf[i] < maxV) text += CAPTCHA_CHARSET[buf[i] % cLen];
+      }
+    }
+    return text;
+  }
+
+  function drawCaptcha(text) {
+    const canvas = document.getElementById('captcha-canvas');
+    const ctx    = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+
+    /* ── Weird background ── */
+    ctx.clearRect(0, 0, W, H);
+
+    /* Dark base */
+    ctx.fillStyle = '#0a0d1a';
+    ctx.fillRect(0, 0, W, H);
+
+    /* Plasma / gradient blobs */
+    const blobs = [
+      { x: 40,  y: 30,  r: 80,  c: 'rgba(59,91,252,0.35)'  },
+      { x: 200, y: 80,  r: 100, c: 'rgba(0,194,255,0.22)'  },
+      { x: 300, y: 20,  r: 70,  c: 'rgba(168,85,247,0.28)' },
+      { x: 130, y: 90,  r: 60,  c: 'rgba(34,197,94,0.15)'  },
+    ];
+    blobs.forEach(function(b) {
+      const grad = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
+      grad.addColorStop(0, b.c);
+      grad.addColorStop(1, 'transparent');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+    });
+
+    /* Random noise pixels */
+    const imgData = ctx.getImageData(0, 0, W, H);
+    const d = imgData.data;
+    for (let i = 0; i < d.length; i += 4) {
+      if (Math.random() < 0.04) {
+        const v = Math.random() * 180 | 0;
+        d[i] = v; d[i+1] = v; d[i+2] = v; d[i+3] = 200;
+      }
+    }
+    ctx.putImageData(imgData, 0, 0);
+
+    /* Random wave lines */
+    for (let l = 0; l < 8; l++) {
+      ctx.beginPath();
+      const yStart = Math.random() * H;
+      const amp    = 6 + Math.random() * 14;
+      const freq   = 0.02 + Math.random() * 0.04;
+      const phase  = Math.random() * Math.PI * 2;
+      ctx.moveTo(0, yStart + amp * Math.sin(phase));
+      for (let x = 1; x <= W; x += 3) {
+        ctx.lineTo(x, yStart + amp * Math.sin(freq * x + phase));
+      }
+      ctx.strokeStyle = 'rgba(' +
+        (80 + Math.random() * 160 | 0) + ',' +
+        (80 + Math.random() * 160 | 0) + ',' +
+        (200 + Math.random() * 55 | 0) + ',0.35)';
+      ctx.lineWidth = .8 + Math.random();
+      ctx.stroke();
+    }
+
+    /* Diagonal scratch lines through text */
+    for (let s = 0; s < 5; s++) {
+      ctx.beginPath();
+      ctx.moveTo(Math.random() * W, Math.random() * H);
+      ctx.lineTo(Math.random() * W, Math.random() * H);
+      ctx.strokeStyle = 'rgba(200,210,255,0.18)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    /* ── Draw distorted characters ── */
+    const fonts = [
+      'bold 44px "Arial Black", sans-serif',
+      'bold 46px "Impact", sans-serif',
+      'bold 42px "Trebuchet MS", sans-serif',
+      'bold 44px "Georgia", serif',
+      'bold 46px "Courier New", monospace',
+    ];
+
+    const colors = ['#00c2ff', '#7c8fff', '#c084fc', '#86efac', '#fde68a', '#f9a8d4'];
+
+    const charW = W / (text.length + 1);
+
+    text.split('').forEach(function(ch, i) {
+      ctx.save();
+      const cx = charW * (i + 0.9) + charW * 0.1;
+      const cy = H / 2 + 8;
+
+      /* Random transform per character */
+      ctx.translate(cx, cy);
+      ctx.rotate((Math.random() - 0.5) * 0.55);
+
+      /* Slight skew */
+      ctx.transform(1, (Math.random() - 0.5) * 0.3, (Math.random() - 0.5) * 0.2, 1, 0, 0);
+
+      ctx.font = fonts[i % fonts.length];
+      ctx.textAlign  = 'center';
+      ctx.textBaseline = 'middle';
+
+      /* Shadow/glow */
+      ctx.shadowColor = colors[i % colors.length];
+      ctx.shadowBlur  = 8;
+
+      /* Stroke (outline) */
+      ctx.strokeStyle = 'rgba(0,0,0,0.8)';
+      ctx.lineWidth   = 4;
+      ctx.strokeText(ch, 0, 0);
+
+      /* Fill */
+      ctx.fillStyle = colors[i % colors.length];
+      ctx.fillText(ch, 0, 0);
+
+      ctx.restore();
+    });
+
+    /* ── Overlay distortion lines on top of text ── */
+    for (let d2 = 0; d2 < 4; d2++) {
+      ctx.beginPath();
+      ctx.moveTo(0, Math.random() * H);
+      for (let x = 0; x <= W; x += 4) {
+        ctx.lineTo(x, (Math.random() * H * 0.4) + H * 0.3);
+      }
+      ctx.strokeStyle = 'rgba(120,140,255,0.12)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+  }
+
+  function openCaptchaModal() {
+    captchaAnswer = generateCaptchaText();
+    drawCaptcha(captchaAnswer);
+    document.getElementById('captcha-input').value = '';
+    document.getElementById('captcha-error').textContent = '';
+    document.getElementById('captcha-overlay').classList.add('visible');
+    setTimeout(function() { document.getElementById('captcha-input').focus(); }, 100);
+  }
+
+  function refreshCaptcha() {
+    captchaAnswer = generateCaptchaText();
+    drawCaptcha(captchaAnswer);
+    document.getElementById('captcha-input').value = '';
+    document.getElementById('captcha-error').textContent = '';
+    document.getElementById('captcha-input').focus();
+  }
+
+  function submitCaptcha() {
+    const input = document.getElementById('captcha-input');
+    const val   = input.value.trim().toUpperCase();
+    const err   = document.getElementById('captcha-error');
+
+    if (val.length < 5) {
+      err.textContent = 'Bitte alle 5 Zeichen eingeben.';
+      return;
+    }
+
+    if (val !== captchaAnswer) {
+      err.textContent = 'Falscher Code. Bitte versuche es erneut.';
+      input.classList.add('shake');
+      input.addEventListener('animationend', function() {
+        input.classList.remove('shake');
+      }, { once: true });
+      /* Regenerate CAPTCHA after wrong attempt */
+      setTimeout(refreshCaptcha, 500);
+      return;
+    }
+
+    /* Correct – close modal and show code */
+    document.getElementById('captcha-overlay').classList.remove('visible');
+    showVerificationSuccess();
+  }
+
+  /* Allow Enter key to submit CAPTCHA */
+  document.getElementById('captcha-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') submitCaptcha();
+  });
+
+  function showVerificationSuccess() {
+    document.getElementById('status-text').textContent = 'Verifizierung erfolgreich!';
+    document.getElementById('status-sub').textContent = 'Dein persönlicher Code wurde generiert.';
+    document.getElementById('code-display').textContent = pendingCode;
+    document.getElementById('code-wrap').classList.add('visible');
+
+    /* Countdown + redirect */
+    let remaining = 3;
+    const counter = document.getElementById('countdown');
+    const interval = setInterval(function() {
+      remaining--;
+      counter.textContent = remaining;
+      if (remaining <= 0) {
+        clearInterval(interval);
+        redirectBack(pendingCode);
+      }
+    }, 1000);
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+   * Redirect back to origin with code in URL param
+   * ───────────────────────────────────────────────────────────── */
+  function redirectBack(code) {
+    if (!origin) {
+      /* Fallback */
+      window.location.href = 'index.html?vcode=' + code;
+      return;
+    }
+    const base = decodeURIComponent(origin);
+    const sep  = base.includes('?') ? '&' : '?';
+    window.location.href = base + sep + 'vcode=' + code;
+  }
+</script>
+</body>
+</html>
