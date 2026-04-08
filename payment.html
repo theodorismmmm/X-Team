@@ -555,7 +555,7 @@
 
         <div class="slider-group">
           <div class="slider-label">
-            <label for="slider-protection">🛡️ Website Schutz / Monat</label>
+            <label for="slider-protection">🛡️ Anzeigen-Sicherheitsschutz / Monat</label>
             <span id="val-protection">Basic</span>
           </div>
           <input type="range" id="slider-protection" min="0" max="2" step="1" value="0"
@@ -990,10 +990,15 @@
   }
 
   function sendEmail() {
-    const email = document.getElementById('contact-email').value || 'info@x-team.de';
+    const email = document.getElementById('contact-email').value;
+    const recipient = 'info@x-team.de';
     const subject = encodeURIComponent('Website Anfrage – X-Team');
-    const body = encodeURIComponent('Hallo X-Team,\n\nich interessiere mich für eure Dienstleistungen.\n\nMeine Auswahl:\n' + buildEmailBody());
-    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+    const body = encodeURIComponent(
+      'Hallo X-Team,\n\nich interessiere mich für eure Dienstleistungen.\n\n' +
+      'Meine E-Mail: ' + (email || '(nicht angegeben)') + '\n\n' +
+      'Meine Auswahl:\n' + buildEmailBody()
+    );
+    window.location.href = `mailto:${recipient}?subject=${subject}&body=${body}`;
   }
 
   function buildEmailBody() {
