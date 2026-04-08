@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>X-Team – Website Konfigurator</title>
+  <style>
+    /* ── Reset ──────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:            #f0f2f5;
+      --white:         #ffffff;
+      --border:        #d1d5db;
+      --border-light:  #e5e7eb;
+      --dark:          #0d1b2a;
+      --navy:          #1a2e4a;
+      --accent:        #1a56db;
+      --accent-hover:  #1347c0;
+      --accent-light:  #eff6ff;
+      --accent-border: #bfdbfe;
+      --text:          #1f2937;
+      --muted:         #6b7280;
+      --success:       #15803d;
+      --gold:          #b45309;
+      --gold-bg:       #fffbeb;
+      --shadow-xs:     0 1px 2px rgba(0,0,0,.07);
+      --shadow-sm:     0 2px 6px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.06);
+      --shadow:        0 4px 12px rgba(0,0,0,.09), 0 2px 6px rgba(0,0,0,.06);
+      --shadow-lg:     0 10px 24px rgba(0,0,0,.11), 0 4px 10px rgba(0,0,0,.07);
+      --shadow-xl:     0 20px 40px rgba(0,0,0,.13), 0 8px 16px rgba(0,0,0,.07);
+      --trans:         .2s ease;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Segoe UI', -apple-system, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Utilities ──────────────────────────────────────────────────── */
+    .hidden { display: none !important; }
+    .fade-in { animation: fadeIn .4s ease forwards; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    /* ── Header ─────────────────────────────────────────────────────── */
+    header {
+      background: var(--dark);
+      height: 62px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 52px;
+      position: sticky; top: 0; z-index: 200;
+      box-shadow: 0 2px 10px rgba(0,0,0,.25);
+    }
+    .logo {
+      font-size: 1.45rem; font-weight: 900;
+      color: #fff; letter-spacing: .5px;
+    }
+    .logo span { color: #60a5fa; }
+    nav a {
+      color: rgba(255,255,255,.65); text-decoration: none;
+      margin-left: 30px; font-size: .875rem; font-weight: 500;
+      transition: color var(--trans);
+    }
+    nav a:hover { color: #fff; }
+
+    /* ── Progress Bar ────────────────────────────────────────────────── */
+    #progress-wrap {
+      background: var(--white);
+      border-bottom: 1px solid var(--border-light);
+      box-shadow: var(--shadow-xs);
+    }
+    #progress-inner {
+      max-width: 980px; margin: 0 auto;
+      display: flex; align-items: center;
+      padding: 0 24px;
+    }
+    .p-step {
+      display: flex; align-items: center; gap: 8px;
+      padding: 14px 0;
+    }
+    .p-num {
+      width: 30px; height: 30px;
+      border: 2px solid var(--border);
+      background: var(--white);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .78rem; font-weight: 800;
+      color: var(--muted);
+      flex-shrink: 0;
+      transition: all var(--trans);
+    }
+    .p-num.active { border-color: var(--accent); background: var(--accent); color: #fff; }
+    .p-num.done   { border-color: var(--accent); background: var(--accent); color: #fff; }
+    .p-label {
+      font-size: .78rem; font-weight: 600; color: var(--muted);
+      white-space: nowrap;
+      transition: color var(--trans);
+    }
+    .p-label.active { color: var(--accent); }
+    .p-label.done   { color: var(--accent); }
+    .p-line {
+      flex: 1; height: 2px; background: var(--border-light);
+      margin: 0 10px; transition: background var(--trans);
+    }
+    .p-line.done { background: var(--accent); }
+
+    /* ── Section Wrapper ─────────────────────────────────────────────── */
+    .section {
+      max-width: 1100px; margin: 0 auto;
+      padding: 52px 24px 130px;
+    }
+    .page-hd { margin-bottom: 38px; }
+    .page-hd h2 {
+      font-size: 2rem; font-weight: 800; color: var(--dark); margin-bottom: 8px;
+    }
+    .page-hd p { color: var(--muted); font-size: 1rem; }
+
+    /* ── Card Grid ───────────────────────────────────────────────────── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    /* ── Option Card ─────────────────────────────────────────────────── */
+    .opt-card {
+      background: var(--white);
+      border: 2px solid var(--border-light);
+      padding: 28px 24px 24px;
+      cursor: pointer; position: relative;
+      box-shadow: var(--shadow-sm);
+      transition: border-color var(--trans), box-shadow var(--trans), transform var(--trans);
+    }
+    .opt-card:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-3px);
+    }
+    .opt-card.selected {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      box-shadow: var(--shadow-lg);
+    }
+    .opt-card .badge {
+      position: absolute; top: 12px; right: 12px;
+      background: var(--accent); color: #fff;
+      font-size: .68rem; font-weight: 800;
+      padding: 3px 9px; letter-spacing: .5px; text-transform: uppercase;
+    }
+    .opt-card .badge.gold { background: var(--gold); }
+    .check-box {
+      position: absolute; top: 12px; left: 12px;
+      width: 22px; height: 22px;
+      border: 2px solid var(--border);
+      background: var(--white);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .7rem; font-weight: 900;
+      transition: all var(--trans);
+    }
+    .opt-card.selected .check-box {
+      border-color: var(--accent); background: var(--accent); color: #fff;
+    }
+    .c-icon { font-size: 2.1rem; margin-bottom: 12px; line-height: 1; }
+    .opt-card h3 {
+      font-size: 1.1rem; font-weight: 800; color: var(--dark); margin-bottom: 4px;
+    }
+    .c-sub {
+      font-size: .75rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .5px; color: var(--muted); margin-bottom: 14px;
+    }
+    .opt-card ul { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+    .opt-card ul li {
+      font-size: .855rem; color: var(--muted);
+      display: flex; align-items: flex-start; gap: 8px; line-height: 1.45;
+    }
+    .opt-card ul li::before {
+      content: '→'; color: var(--accent); font-weight: 900;
+      flex-shrink: 0; margin-top: 1px;
+    }
+
+    /* hosting meta */
+    .host-meta {
+      margin-top: 14px; padding-top: 12px;
+      border-top: 1px solid var(--border-light);
+    }
+    .host-meta .m-row {
+      font-size: .8rem; color: var(--muted);
+      display: flex; align-items: center; gap: 6px; margin-bottom: 4px;
+    }
+    .host-meta .m-row strong { color: var(--text); }
+
+    /* ── Domain Screen ───────────────────────────────────────────────── */
+    .hero-section {
+      text-align: center; padding: 80px 24px 60px;
+      max-width: 720px; margin: 0 auto;
+    }
+    .hero-tag {
+      display: inline-block;
+      background: var(--accent-light); color: var(--accent);
+      border: 1px solid var(--accent-border);
+      font-size: .74rem; font-weight: 800; letter-spacing: 1.2px;
+      text-transform: uppercase; padding: 6px 16px; margin-bottom: 24px;
+    }
+    .hero-section h1 {
+      font-size: 3.1rem; font-weight: 900; color: var(--dark);
+      line-height: 1.12; margin-bottom: 18px;
+    }
+    .hero-section h1 span { color: var(--accent); }
+    .hero-section p {
+      color: var(--muted); font-size: 1.05rem;
+      line-height: 1.75; margin-bottom: 40px;
+    }
+    .features-row {
+      display: flex; justify-content: center; gap: 32px; flex-wrap: wrap;
+      margin-bottom: 48px;
+    }
+    .feat-item {
+      display: flex; align-items: center; gap: 8px;
+      font-size: .875rem; color: var(--muted); font-weight: 500;
+    }
+    .feat-item span { color: var(--accent); font-weight: 800; font-size: 1rem; }
+
+    .domain-card {
+      background: var(--white); border: 1px solid var(--border-light);
+      box-shadow: var(--shadow); padding: 48px;
+      max-width: 600px; margin: 0 auto;
+    }
+    .domain-card h2 {
+      font-size: 1.7rem; font-weight: 800; color: var(--dark); margin-bottom: 10px;
+    }
+    .domain-card > p {
+      color: var(--muted); margin-bottom: 30px; line-height: 1.65; font-size: .95rem;
+    }
+    .domain-field {
+      display: flex; border: 2px solid var(--border);
+      background: var(--white); box-shadow: var(--shadow-xs);
+      transition: border-color var(--trans);
+      margin-bottom: 10px;
+    }
+    .domain-field:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26,86,219,.12); }
+    .d-prefix {
+      padding: 13px 15px; background: var(--bg);
+      border-right: 1px solid var(--border-light);
+      font-size: .9rem; color: var(--muted); font-weight: 700; white-space: nowrap;
+    }
+    #domain-input {
+      flex: 1; padding: 13px 15px; border: none; outline: none;
+      font-size: .97rem; color: var(--text); background: transparent;
+      font-family: inherit;
+    }
+    .domain-hint { font-size: .8rem; color: var(--muted); margin-bottom: 28px; }
+
+    /* ── Add-on Cards ────────────────────────────────────────────────── */
+    .addon-list { display: flex; flex-direction: column; gap: 20px; }
+    .addon-card {
+      background: var(--white); border: 2px solid var(--border-light);
+      box-shadow: var(--shadow-sm); transition: border-color var(--trans);
+    }
+    .addon-card.on { border-color: var(--accent); }
+    .addon-head {
+      display: flex; align-items: center;
+      justify-content: space-between; padding: 22px 26px;
+      cursor: pointer;
+    }
+    .addon-head-left { display: flex; align-items: center; gap: 16px; }
+    .addon-ico {
+      width: 44px; height: 44px;
+      background: var(--accent-light); border: 1px solid var(--accent-border);
+      display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+    }
+    .addon-head h3 {
+      font-size: 1rem; font-weight: 800; color: var(--dark); margin-bottom: 3px;
+    }
+    .addon-head .a-tag {
+      font-size: .75rem; color: var(--muted); font-weight: 500;
+    }
+    /* toggle */
+    .toggle { position: relative; width: 46px; height: 25px; flex-shrink: 0; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .tgl-slider {
+      position: absolute; inset: 0; background: var(--border);
+      cursor: pointer; transition: background var(--trans);
+    }
+    .tgl-slider::before {
+      content: ''; position: absolute;
+      left: 3px; top: 3px; width: 19px; height: 19px;
+      background: #fff; transition: transform var(--trans);
+      box-shadow: 0 1px 4px rgba(0,0,0,.2);
+    }
+    .toggle input:checked + .tgl-slider { background: var(--accent); }
+    .toggle input:checked + .tgl-slider::before { transform: translateX(21px); }
+    .addon-body {
+      border-top: 1px solid var(--border-light);
+      padding: 24px 26px;
+    }
+    .addon-body > p {
+      color: var(--muted); font-size: .9rem; margin-bottom: 20px; line-height: 1.65;
+    }
+    .addon-feat {
+      list-style: none; display: flex; flex-direction: column; gap: 8px;
+    }
+    .addon-feat li {
+      font-size: .875rem; color: var(--muted);
+      display: flex; align-items: flex-start; gap: 8px; line-height: 1.45;
+    }
+    .addon-feat li::before { content: '→'; color: var(--accent); font-weight: 900; flex-shrink: 0; }
+    /* KI Tiers */
+    .ki-tiers {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 20px;
+    }
+    .ki-tier {
+      border: 2px solid var(--border-light); padding: 18px 14px;
+      text-align: center; cursor: pointer;
+      background: var(--white);
+      transition: border-color var(--trans), box-shadow var(--trans);
+    }
+    .ki-tier:hover { border-color: var(--accent); box-shadow: var(--shadow); }
+    .ki-tier.sel { border-color: var(--accent); background: var(--accent-light); }
+    .ki-tier .t-ico { font-size: 1.5rem; margin-bottom: 8px; }
+    .ki-tier h4 { font-size: .95rem; font-weight: 800; color: var(--dark); margin-bottom: 4px; }
+    .ki-tier p { font-size: .78rem; color: var(--muted); }
+
+    /* ── Buttons ─────────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px 24px; border: none; border-radius: 0;
+      font-size: .9rem; font-weight: 700; font-family: inherit; cursor: pointer;
+      letter-spacing: .3px; transition: all var(--trans);
+    }
+    .btn-primary {
+      background: var(--accent); color: #fff; box-shadow: var(--shadow);
+    }
+    .btn-primary:hover {
+      background: var(--accent-hover); box-shadow: var(--shadow-lg); transform: translateY(-1px);
+    }
+    .btn-primary:active { transform: none; box-shadow: var(--shadow-sm); }
+    .btn-secondary {
+      background: var(--white); color: var(--text);
+      border: 2px solid var(--border); box-shadow: var(--shadow-xs);
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-dark { background: var(--dark); color: #fff; box-shadow: var(--shadow); }
+    .btn-dark:hover { background: var(--navy); box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+    .btn-lg { padding: 15px 32px; font-size: 1rem; }
+
+    .nav-btns {
+      display: flex; gap: 12px; justify-content: flex-end;
+      margin-top: 40px; padding-top: 24px;
+      border-top: 1px solid var(--border-light); flex-wrap: wrap;
+    }
+
+    /* ── Summary Screen ──────────────────────────────────────────────── */
+    .sum-box {
+      background: var(--white); border: 1px solid var(--border-light);
+      box-shadow: var(--shadow);
+    }
+    .sum-sec {
+      padding: 24px 32px; border-bottom: 1px solid var(--border-light);
+    }
+    .sum-sec:last-child { border-bottom: none; }
+    .sum-sec-title {
+      font-size: .72rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 1.1px; color: var(--muted); margin-bottom: 14px;
+    }
+    .sum-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 9px 0; border-bottom: 1px solid var(--border-light);
+      font-size: .9rem;
+    }
+    .sum-row:last-child { border-bottom: none; }
+    .sum-row .r-label { color: var(--text); }
+    .sum-row .r-price { font-weight: 800; color: var(--dark); }
+    .sum-row .r-sub { font-size: .8rem; font-weight: 400; color: var(--muted); }
+    .sum-total {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 22px 32px; background: var(--dark); color: #fff;
+    }
+    .sum-total .tl { font-size: .875rem; font-weight: 600; opacity: .75; }
+    .sum-total .tp { font-size: 1.7rem; font-weight: 900; }
+    .note-text {
+      font-size: .8rem; color: var(--muted); margin-top: 14px; line-height: 1.6;
+    }
+
+    /* ── Contact Screen ──────────────────────────────────────────────── */
+    .contact-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 28px;
+    }
+    .cf-card {
+      background: var(--white); border: 1px solid var(--border-light);
+      box-shadow: var(--shadow); padding: 36px;
+    }
+    .cs-card {
+      background: var(--dark); color: #fff;
+      box-shadow: var(--shadow); padding: 36px;
+    }
+    .cs-card h3 {
+      font-size: 1rem; font-weight: 800; margin-bottom: 22px; opacity: .9;
+    }
+    .cs-row {
+      display: flex; justify-content: space-between;
+      padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.1);
+      font-size: .875rem;
+    }
+    .cs-row:last-of-type { border-bottom: none; }
+    .cs-row .cs-lbl { opacity: .65; }
+    .cs-row .cs-val { font-weight: 700; text-align: right; max-width: 60%; }
+    .cs-total-line {
+      border-top: 2px solid rgba(255,255,255,.2);
+      padding-top: 16px; margin-top: 8px;
+      display: flex; justify-content: space-between;
+      font-size: 1.1rem; font-weight: 900;
+    }
+    .btn-cfg {
+      width: 100%; margin-top: 20px; padding: 11px 16px;
+      background: rgba(255,255,255,.1); color: #fff;
+      border: 1px solid rgba(255,255,255,.25);
+      font-family: inherit; font-size: .875rem; font-weight: 700;
+      cursor: pointer; transition: background var(--trans);
+    }
+    .btn-cfg:hover { background: rgba(255,255,255,.2); }
+    .form-grp {
+      display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px;
+    }
+    .form-grp label {
+      font-size: .78rem; font-weight: 800; color: var(--text);
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .form-grp input,
+    .form-grp textarea {
+      padding: 11px 13px; border: 2px solid var(--border);
+      background: var(--white); font-size: .9rem; font-family: inherit;
+      color: var(--text); outline: none;
+      transition: border-color var(--trans), box-shadow var(--trans);
+    }
+    .form-grp input:focus,
+    .form-grp textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(26,86,219,.1);
+    }
+    .form-grp textarea { resize: vertical; min-height: 130px; }
+    .success-box {
+      text-align: center; padding: 52px 24px;
+    }
+    .success-ico {
+      width: 68px; height: 68px;
+      background: #f0fdf4; border: 2px solid #86efac;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.9rem; margin: 0 auto 20px;
+    }
+    .success-box h3 {
+      font-size: 1.4rem; font-weight: 900; color: var(--dark); margin-bottom: 8px;
+    }
+    .success-box p { color: var(--muted); font-size: .95rem; }
+
+    /* ── Sticky Bar ──────────────────────────────────────────────────── */
+    #summary-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--dark); color: #fff;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 52px; z-index: 199;
+      box-shadow: 0 -4px 16px rgba(0,0,0,.25);
+      flex-wrap: wrap; gap: 10px;
+    }
+    .bar-chips { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+    .bar-chip {
+      background: rgba(255,255,255,.12); padding: 4px 12px;
+      font-size: .77rem; color: rgba(255,255,255,.9); font-weight: 600;
+    }
+    .bar-chip.ac { background: var(--accent); }
+    .bar-right {
+      font-size: .85rem; font-weight: 600; color: rgba(255,255,255,.6);
+      white-space: nowrap;
+    }
+    .bar-right strong { font-size: 1.15rem; font-weight: 900; color: #fff; margin-left: 8px; }
+
+    /* ── Responsive ──────────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .contact-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      header { padding: 0 18px; }
+      #summary-bar { padding: 12px 18px; }
+      .section { padding: 32px 16px 130px; }
+      .hero-section { padding: 52px 16px 40px; }
+      .hero-section h1 { font-size: 2.1rem; }
+      .domain-card { padding: 28px 20px; }
+      .p-label { display: none; }
+      .ki-tiers { grid-template-columns: 1fr; }
+      .sum-sec { padding: 18px 18px; }
+      .sum-total { padding: 16px 18px; }
+      .cf-card, .cs-card { padding: 24px 18px; }
+      .features-row { gap: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header>
+  <div class="logo">X-<span>Team</span></div>
+  <nav>
+    <a href="#" onclick="goHome(); return false;">Start</a>
+    <a href="mailto:info@x-team.de">Kontakt</a>
+  </nav>
+</header>
+
+<!-- ═══════════════ PROGRESS BAR ═══════════════ -->
+<div id="progress-wrap" class="hidden">
+  <div id="progress-inner">
+    <div class="p-step"><div class="p-num" id="pn1">1</div><div class="p-label" id="pl1">Domain</div></div>
+    <div class="p-line" id="pln1"></div>
+    <div class="p-step"><div class="p-num" id="pn2">2</div><div class="p-label" id="pl2">Paket</div></div>
+    <div class="p-line" id="pln2"></div>
+    <div class="p-step"><div class="p-num" id="pn3">3</div><div class="p-label" id="pl3">Hosting</div></div>
+    <div class="p-line" id="pln3"></div>
+    <div class="p-step"><div class="p-num" id="pn4">4</div><div class="p-label" id="pl4">Add-ons</div></div>
+    <div class="p-line" id="pln4"></div>
+    <div class="p-step"><div class="p-num" id="pn5">5</div><div class="p-label" id="pl5">Übersicht</div></div>
+    <div class="p-line" id="pln5"></div>
+    <div class="p-step"><div class="p-num" id="pn6">6</div><div class="p-label" id="pl6">Anfrage</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN: START ═══════════════ -->
+<div id="screen-start">
+  <div class="hero-section fade-in">
+    <div class="hero-tag">Webdesign &amp; Entwicklung</div>
+    <h1>Professionelle Websites<br>von <span>X-Team</span></h1>
+    <p>Maßgeschneiderte Webseiten für Unternehmen, Restaurants, Shops und mehr –<br>
+       transparent konfiguriert, professionell umgesetzt.</p>
+    <div class="features-row">
+      <div class="feat-item"><span>✓</span> Individuelle Lösungen</div>
+      <div class="feat-item"><span>✓</span> Transparente Preise</div>
+      <div class="feat-item"><span>✓</span> Schnelle Umsetzung</div>
+    </div>
+    <button class="btn btn-primary btn-lg" onclick="startConfig()">
+      Jetzt konfigurieren →
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN 1: DOMAIN ═══════════════ -->
+<div id="screen-domain" class="hidden">
+  <div class="section">
+    <div class="fade-in">
+      <div class="page-hd">
+        <h2>Welche Domain möchtest du?</h2>
+        <p>Gib die gewünschte Adresse für deine neue Website ein.</p>
+      </div>
+      <div class="domain-card">
+        <h2>Deine Domain</h2>
+        <p>
+          Die Domain ist die Adresse deiner Website im Internet.<br>
+          Beispiele: <em>mein-shop.de</em> · <em>restaurant-name.de</em> · <em>firma.com</em><br>
+          Falls du noch keine Domain hast, können wir dir eine registrieren.
+        </p>
+        <div class="domain-field">
+          <div class="d-prefix">www.</div>
+          <input
+            type="text" id="domain-input"
+            placeholder="dein-name.de" autocomplete="off"
+            oninput="onDomainInput()"
+            onkeydown="if(event.key==='Enter') gotoPackage()"
+          />
+        </div>
+        <p class="domain-hint">Einfach eintippen – wir kümmern uns um alles Weitere.</p>
+        <button
+          class="btn btn-primary btn-lg" id="btn-domain-next"
+          onclick="gotoPackage()" style="display:none; width:100%;"
+        >
+          Weiter zur Paketauswahl →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN 2: PAKET ═══════════════ -->
+<div id="screen-package" class="hidden">
+  <div class="section">
+    <div class="fade-in">
+      <div class="page-hd">
+        <h2>Welches Paket passt zu dir?</h2>
+        <p>Wähle das Paket, das am besten zu deinem Projekt passt.</p>
+      </div>
+      <div class="card-grid">
+
+        <!-- Pack 1 -->
+        <div class="opt-card" id="pkg-1" onclick="selectPkg(this,1)">
+          <div class="check-box" id="cb-pkg-1"></div>
+          <div class="badge">Empfohlen</div>
+          <div class="c-icon">🛒</div>
+          <h3>Online Shop</h3>
+          <div class="c-sub">E-Commerce &amp; Verkauf</div>
+          <ul>
+            <li>Ausgelegt für Sicherheit &amp; Nutzererlebnis</li>
+            <li>Professionelles Webdesign</li>
+            <li>Produkte, Warenkorb &amp; Zahlung</li>
+            <li>Optimiert für hohe Last</li>
+          </ul>
+        </div>
+
+        <!-- Pack 2 -->
+        <div class="opt-card" id="pkg-2" onclick="selectPkg(this,2)">
+          <div class="check-box" id="cb-pkg-2"></div>
+          <div class="c-icon">🍽️</div>
+          <h3>Restaurant &amp; Physisch</h3>
+          <div class="c-sub">Gastronomie &amp; lokale Unternehmen</div>
+          <ul>
+            <li>Reservierungs- &amp; Buchungssystem</li>
+            <li>Kontaktformulare &amp; Karten</li>
+            <li>Barrierefreiheit &amp; Bedienungshilfen</li>
+            <li>Optimiert für niedrige Last</li>
+          </ul>
+        </div>
+
+        <!-- Pack 3 -->
+        <div class="opt-card" id="pkg-3" onclick="selectPkg(this,3)">
+          <div class="check-box" id="cb-pkg-3"></div>
+          <div class="badge gold">Pro</div>
+          <div class="c-icon">🚀</div>
+          <h3>Komplett</h3>
+          <div class="c-sub">Enterprise &amp; Web Apps</div>
+          <ul>
+            <li>Einzigartiges maßgeschneidertes Design</li>
+            <li>Spezielle Systeme &amp; Integrationen</li>
+            <li>Web App Entwicklung</li>
+            <li>Optimiert für sehr hohe Last</li>
+          </ul>
+        </div>
+
+        <!-- Pack 4 -->
+        <div class="opt-card" id="pkg-4" onclick="selectPkg(this,4)">
+          <div class="check-box" id="cb-pkg-4"></div>
+          <div class="c-icon">🎯</div>
+          <h3>Hobby</h3>
+          <div class="c-sub">Persönlich &amp; Einfach</div>
+          <ul>
+            <li>Persönliche Website oder Blog</li>
+            <li>Portfolio &amp; Präsentation</li>
+            <li>Einfaches, sauberes Design</li>
+            <li>Ideal für Privatpersonen</li>
+          </ul>
+        </div>
+
+      </div>
+      <div class="nav-btns">
+        <button class="btn btn-secondary" onclick="showSection('screen-domain')">← Zurück</button>
+        <button class="btn btn-primary" id="btn-pkg-next" onclick="gotoHosting()" style="display:none;">
+          Weiter zu Hosting →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN 3: HOSTING ═══════════════ -->
+<div id="screen-hosting" class="hidden">
+  <div class="section">
+    <div class="fade-in">
+      <div class="page-hd">
+        <h2>Wähle dein Hosting</h2>
+        <p>Wie viele Nutzer erwartest du gleichzeitig auf deiner Website?</p>
+      </div>
+      <div class="card-grid">
+
+        <!-- Hobby -->
+        <div class="opt-card" id="host-1" onclick="selectHost(this,1)">
+          <div class="check-box" id="cb-host-1"></div>
+          <div class="c-icon">🌱</div>
+          <h3>Hobby</h3>
+          <div class="c-sub">Einsteiger</div>
+          <ul>
+            <li>10 – 125 Nutzer gleichzeitig</li>
+            <li>Für kleine &amp; persönliche Projekte</li>
+            <li>Standard Uptime</li>
+          </ul>
+          <div class="host-meta">
+            <div class="m-row">🔓 <strong>Keine Sicherheit</strong> inbegriffen</div>
+            <div class="m-row">📦 Abrechnung alle 3 Monate</div>
+          </div>
+        </div>
+
+        <!-- Basic -->
+        <div class="opt-card" id="host-2" onclick="selectHost(this,2)">
+          <div class="check-box" id="cb-host-2"></div>
+          <div class="badge">Beliebt</div>
+          <div class="c-icon">⚙️</div>
+          <h3>Basic</h3>
+          <div class="c-sub">Kleine Unternehmen</div>
+          <ul>
+            <li>125 – 425 Nutzer gleichzeitig</li>
+            <li>99% Uptime Garantie</li>
+            <li>E-Mail Support</li>
+          </ul>
+          <div class="host-meta">
+            <div class="m-row">🛡️ <strong>Normale Sicherheit</strong></div>
+            <div class="m-row">📦 Abrechnung alle 3 Monate</div>
+          </div>
+        </div>
+
+        <!-- Profi -->
+        <div class="opt-card" id="host-3" onclick="selectHost(this,3)">
+          <div class="check-box" id="cb-host-3"></div>
+          <div class="c-icon">🚀</div>
+          <h3>Profi</h3>
+          <div class="c-sub">Wachsende Unternehmen</div>
+          <ul>
+            <li>425 – 2.000 Nutzer gleichzeitig</li>
+            <li>99,9% Uptime Garantie</li>
+            <li>24/7 Support</li>
+          </ul>
+          <div class="host-meta">
+            <div class="m-row">🔐 <strong>Hohe Sicherheit</strong> inkl. DDoS-Schutz</div>
+            <div class="m-row">📦 Abrechnung alle 3 Monate</div>
+          </div>
+        </div>
+
+        <!-- Super -->
+        <div class="opt-card" id="host-4" onclick="selectHost(this,4)">
+          <div class="check-box" id="cb-host-4"></div>
+          <div class="badge gold">Super</div>
+          <div class="c-icon">💎</div>
+          <h3>Super</h3>
+          <div class="c-sub">Enterprise &amp; High Traffic</div>
+          <ul>
+            <li>2.000 – 12.500 Nutzer gleichzeitig</li>
+            <li>99,99% Uptime Garantie</li>
+            <li>Persönlicher Account-Manager</li>
+          </ul>
+          <div class="host-meta">
+            <div class="m-row">🏰 <strong>Maximale Sicherheit</strong> inkl. DDoS &amp; mehr</div>
+            <div class="m-row">📦 Abrechnung alle 3 Monate</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="nav-btns">
+        <button class="btn btn-secondary" onclick="showSection('screen-package')">← Zurück</button>
+        <button class="btn btn-primary" id="btn-host-next" onclick="gotoAddons()" style="display:none;">
+          Weiter zu Add-ons →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN 4: ADD-ONS ═══════════════ -->
+<div id="screen-addons" class="hidden">
+  <div class="section">
+    <div class="fade-in">
+      <div class="page-hd">
+        <h2>Optionale Erweiterungen</h2>
+        <p>Füge leistungsstarke Zusatzfunktionen zu deinem Paket hinzu.</p>
+      </div>
+      <div class="addon-list">
+
+        <!-- Add-on 1: Extra SSL -->
+        <div class="addon-card" id="ac-ssl">
+          <div class="addon-head" onclick="toggleAddon('ssl')">
+            <div class="addon-head-left">
+              <div class="addon-ico">🔒</div>
+              <div>
+                <h3>Extra Sicherheit – Premium SSL</h3>
+                <div class="a-tag">Hochwertige SSL-Zertifikate für maximale Vertrauenswürdigkeit</div>
+              </div>
+            </div>
+            <label class="toggle" onclick="event.stopPropagation()">
+              <input type="checkbox" id="chk-ssl" onchange="toggleAddon('ssl', this.checked)" />
+              <span class="tgl-slider"></span>
+            </label>
+          </div>
+          <div class="addon-body hidden" id="ab-ssl">
+            <p>
+              Erweiterte SSL-Verschlüsselung mit hochwertigen Zertifikaten für maximales Vertrauen bei
+              deinen Besuchern. Ideal für Online-Shops und Unternehmen, die sensible Daten verarbeiten.
+            </p>
+            <ul class="addon-feat">
+              <li>Extended Validation (EV) SSL Zertifikat</li>
+              <li>Wildcard-Zertifikat für alle Subdomains</li>
+              <li>Jährliche Erneuerung &amp; Verwaltung inklusive</li>
+              <li>Grünes Schloss-Symbol für mehr Vertrauen</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Add-on 2: KI Integration -->
+        <div class="addon-card" id="ac-ki">
+          <div class="addon-head" onclick="toggleAddon('ki')">
+            <div class="addon-head-left">
+              <div class="addon-ico">🤖</div>
+              <div>
+                <h3>KI-Integration</h3>
+                <div class="a-tag">Intelligente Assistenz – Preis nutzungsabhängig</div>
+              </div>
+            </div>
+            <label class="toggle" onclick="event.stopPropagation()">
+              <input type="checkbox" id="chk-ki" onchange="toggleAddon('ki', this.checked)" />
+              <span class="tgl-slider"></span>
+            </label>
+          </div>
+          <div class="addon-body hidden" id="ab-ki">
+            <p>
+              Integriere KI in deine Website: Hilf Nutzern, Inhalte schneller zu finden, beantworte
+              häufige Fragen automatisch und steigere die Nutzerzufriedenheit. Wähle dein Nutzungsvolumen:
+            </p>
+            <ul class="addon-feat">
+              <li>Intelligenter Chat-Assistent auf deiner Website</li>
+              <li>Automatische Antworten auf häufige Fragen</li>
+              <li>Produktempfehlungen &amp; Seitennavigation</li>
+            </ul>
+            <div class="ki-tiers">
+              <div class="ki-tier" id="ki-1" onclick="selectKi(1)">
+                <div class="t-ico">💬</div>
+                <h4>Starter</h4>
+                <p>Bis 500 Anfragen / Monat</p>
+              </div>
+              <div class="ki-tier" id="ki-2" onclick="selectKi(2)">
+                <div class="t-ico">⚡</div>
+                <h4>Standard</h4>
+                <p>Bis 2.000 Anfragen / Monat</p>
+              </div>
+              <div class="ki-tier" id="ki-3" onclick="selectKi(3)">
+                <div class="t-ico">🚀</div>
+                <h4>Pro</h4>
+                <p>Unbegrenzte Anfragen</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="nav-btns">
+        <button class="btn btn-secondary" onclick="showSection('screen-hosting')">← Zurück</button>
+        <button class="btn btn-primary" onclick="gotoSummary()">
+          Zur Kostenübersicht →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN 5: ZUSAMMENFASSUNG ═══════════════ -->
+<div id="screen-summary" class="hidden">
+  <div class="section">
+    <div class="fade-in">
+      <div class="page-hd">
+        <h2>Deine Konfiguration &amp; Preise</h2>
+        <p>Hier ist eine vollständige Übersicht deiner Auswahl und der kalkulierten Kosten.</p>
+      </div>
+      <div class="sum-box">
+        <div id="sum-content"><!-- filled by JS --></div>
+        <div class="sum-total">
+          <div class="tl">Geschätzter Gesamtpreis / Monat (Richtwert)</div>
+          <div class="tp" id="sum-grand">–</div>
+        </div>
+      </div>
+      <p class="note-text">
+        * Alle Preise sind Richtwerte. Der finale Preis wird individuell nach einem Beratungsgespräch festgelegt.<br>
+        * Das Website-Paket ist ein einmaliger Entwicklungspreis. Hosting wird alle 3 Monate abgerechnet.<br>
+        * Domain-Preis ist eine Schätzung basierend auf der eingegebenen Domain-Endung.
+      </p>
+      <div class="nav-btns">
+        <button class="btn btn-secondary" onclick="showSection('screen-addons')">← Zurück</button>
+        <button class="btn btn-primary btn-lg" onclick="gotoContact()">
+          Jetzt anfragen →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN 6: KONTAKT ═══════════════ -->
+<div id="screen-contact" class="hidden">
+  <div class="section">
+    <div class="fade-in">
+      <div class="page-hd">
+        <h2>Jetzt anfragen</h2>
+        <p>Schick uns deine Konfiguration – wir antworten innerhalb von 24 Stunden.</p>
+      </div>
+      <div class="contact-grid">
+
+        <!-- Form -->
+        <div class="cf-card">
+          <form id="contact-form" onsubmit="submitForm(event)">
+            <div class="form-grp">
+              <label>Dein Name *</label>
+              <input type="text" id="f-name" placeholder="Max Mustermann" required />
+            </div>
+            <div class="form-grp">
+              <label>E-Mail *</label>
+              <input type="email" id="f-email" placeholder="" required />
+            </div>
+            <div class="form-grp">
+              <label>Telefon (optional)</label>
+              <input type="tel" id="f-phone" placeholder="+49 123 456789" />
+            </div>
+            <div class="form-grp">
+              <label>Deine Nachricht &amp; Fragen</label>
+              <textarea id="f-msg"
+                placeholder="Stelle uns deine Fragen oder gib uns weitere Informationen zu deinem Projekt…">
+              </textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg" style="width:100%;">
+              Anfrage absenden →
+            </button>
+          </form>
+          <div id="form-ok" class="hidden">
+            <div class="success-box">
+              <div class="success-ico">✅</div>
+              <h3>Anfrage gesendet!</h3>
+              <p>Wir melden uns innerhalb von 24 Stunden bei dir.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Config Sidebar -->
+        <div class="cs-card">
+          <h3>Deine Konfiguration</h3>
+          <div id="cs-items"><!-- filled by JS --></div>
+          <button class="btn-cfg" onclick="insertConfig()">
+            ↙ Konfiguration in Nachricht einfügen
+          </button>
+        </div>
+
+      </div>
+      <div class="nav-btns" style="justify-content:center;">
+        <button class="btn btn-secondary" onclick="goHome()">← Zur Startseite</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ STICKY BAR ═══════════════ -->
+<div id="summary-bar" style="display:none;">
+  <div class="bar-chips" id="bar-chips"></div>
+  <div class="bar-right">Geschätzt: <strong id="bar-total">–</strong></div>
+</div>
+
+<!-- ═══════════════ JAVASCRIPT ═══════════════ -->
+<script>
+  /* ── Data ─────────────────────────────────────────────────────────── */
+  const PKG_NAMES  = { 1: 'Online Shop', 2: 'Restaurant & Physisch', 3: 'Komplett', 4: 'Hobby' };
+  const PKG_PRICES = { 1: 39.99, 2: 59.99, 3: 99.99, 4: 9.99 };  // one-time build
+
+  const HOST_NAMES  = { 1: 'Hobby Hosting', 2: 'Basic Hosting', 3: 'Profi Hosting', 4: 'Super Hosting' };
+  const HOST_PRICES = { 1: 30, 2: 75, 3: 110, 4: 225 };  // per 3 months
+
+  const KI_NAMES  = { 1: 'KI Starter', 2: 'KI Standard', 3: 'KI Pro' };
+  const KI_PRICES = { 1: 19.99, 2: 39.99, 3: 79.99 };  // per month
+  const SSL_YEAR  = 120;
+
+  const DOMAIN_TLD_PRICES = {
+    de: 10, com: 14, net: 12, org: 12, info: 8,
+    shop: 24, online: 20, io: 40, eu: 9, at: 12, ch: 18, co: 16
+  };
+
+  /* ── State ────────────────────────────────────────────────────────── */
+  const S = {
+    domain: '', pkgId: null, hostId: null,
+    ssl: false, ki: false, kiTier: null
+  };
+
+  /* ── Screen Management ────────────────────────────────────────────── */
+  const SCREENS = [
+    'screen-start','screen-domain','screen-package',
+    'screen-hosting','screen-addons','screen-summary','screen-contact'
+  ];
+  const STEP_MAP = {
+    'screen-domain': 1, 'screen-package': 2, 'screen-hosting': 3,
+    'screen-addons': 4, 'screen-summary': 5, 'screen-contact': 6
+  };
+
+  function showSection(id) {
+    SCREENS.forEach(s => document.getElementById(s).classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    updateProgress(id);
+    updateBar();
+  }
+
+  function updateProgress(id) {
+    const wrap = document.getElementById('progress-wrap');
+    const step = STEP_MAP[id];
+    if (!step) { wrap.classList.add('hidden'); return; }
+    wrap.classList.remove('hidden');
+    for (let i = 1; i <= 6; i++) {
+      const n = document.getElementById('pn' + i);
+      const l = document.getElementById('pl' + i);
+      n.classList.remove('active','done');
+      l.classList.remove('active','done');
+      if (i < step)        { n.classList.add('done');   l.classList.add('done'); }
+      else if (i === step) { n.classList.add('active');  l.classList.add('active'); }
+      if (i < 6) document.getElementById('pln' + i).classList.toggle('done', i < step);
+    }
+  }
+
+  /* ── Reset / Home ─────────────────────────────────────────────────── */
+  function goHome() {
+    Object.assign(S, { domain:'', pkgId:null, hostId:null, ssl:false, ki:false, kiTier:null });
+
+    document.querySelectorAll('.opt-card.selected').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('.check-box').forEach(c => { c.textContent = ''; });
+    document.querySelectorAll('.ki-tier.sel').forEach(c => c.classList.remove('sel'));
+    document.querySelectorAll('input[type=checkbox]').forEach(c => { c.checked = false; });
+    ['ab-ssl','ab-ki'].forEach(id => document.getElementById(id).classList.add('hidden'));
+    ['ac-ssl','ac-ki'].forEach(id => document.getElementById(id).classList.remove('on'));
+
+    document.getElementById('domain-input').value = '';
+    document.getElementById('btn-domain-next').style.display = 'none';
+    document.getElementById('btn-pkg-next').style.display = 'none';
+    document.getElementById('btn-host-next').style.display = 'none';
+    document.getElementById('contact-form').style.display = '';
+    document.getElementById('form-ok').classList.add('hidden');
+    document.getElementById('progress-wrap').classList.add('hidden');
+    document.getElementById('summary-bar').style.display = 'none';
+    showSection('screen-start');
+  }
+
+  /* ── Start ────────────────────────────────────────────────────────── */
+  function startConfig() { showSection('screen-domain'); }
+
+  /* ── Step 1: Domain ───────────────────────────────────────────────── */
+  function onDomainInput() {
+    const v = document.getElementById('domain-input').value.trim();
+    S.domain = v;
+    document.getElementById('btn-domain-next').style.display = v.length >= 3 ? 'block' : 'none';
+    updateBar();
+  }
+  function gotoPackage() {
+    if (S.domain.length < 3) { document.getElementById('domain-input').focus(); return; }
+    showSection('screen-package');
+  }
+
+  /* ── Step 2: Paket ────────────────────────────────────────────────── */
+  function selectPkg(el, id) {
+    document.querySelectorAll('#screen-package .opt-card').forEach(c => {
+      c.classList.remove('selected');
+      c.querySelector('.check-box').textContent = '';
+    });
+    el.classList.add('selected');
+    el.querySelector('.check-box').textContent = '✓';
+    S.pkgId = id;
+    document.getElementById('btn-pkg-next').style.display = 'inline-flex';
+    updateBar();
+  }
+  function gotoHosting() {
+    if (!S.pkgId) return;
+    showSection('screen-hosting');
+  }
+
+  /* ── Step 3: Hosting ──────────────────────────────────────────────── */
+  function selectHost(el, id) {
+    document.querySelectorAll('#screen-hosting .opt-card').forEach(c => {
+      c.classList.remove('selected');
+      c.querySelector('.check-box').textContent = '';
+    });
+    el.classList.add('selected');
+    el.querySelector('.check-box').textContent = '✓';
+    S.hostId = id;
+    document.getElementById('btn-host-next').style.display = 'inline-flex';
+    updateBar();
+  }
+  function gotoAddons() {
+    if (!S.hostId) return;
+    showSection('screen-addons');
+  }
+
+  /* ── Step 4: Add-ons ──────────────────────────────────────────────── */
+  function toggleAddon(id, checked) {
+    if (checked === undefined) {
+      const cb = document.getElementById('chk-' + id);
+      cb.checked = !cb.checked;
+      checked = cb.checked;
+    }
+    S[id] = checked;
+    document.getElementById('ab-' + id).classList.toggle('hidden', !checked);
+    document.getElementById('ac-' + id).classList.toggle('on', checked);
+    if (!checked && id === 'ki') {
+      S.kiTier = null;
+      document.querySelectorAll('.ki-tier').forEach(t => t.classList.remove('sel'));
+    }
+    updateBar();
+  }
+  function selectKi(tier) {
+    document.querySelectorAll('.ki-tier').forEach(t => t.classList.remove('sel'));
+    document.getElementById('ki-' + tier).classList.add('sel');
+    S.kiTier = tier;
+    updateBar();
+  }
+
+  /* ── Domain price estimate ────────────────────────────────────────── */
+  function domainYearPrice() {
+    if (!S.domain) return 12;
+    const tld = S.domain.toLowerCase().includes('.')
+      ? S.domain.toLowerCase().split('.').pop().split('/')[0]
+      : 'de';
+    return DOMAIN_TLD_PRICES[tld] || 12;
+  }
+
+  /* ── Monthly total ────────────────────────────────────────────────── */
+  function calcMonthly() {
+    let m = 0;
+    if (S.hostId)               m += HOST_PRICES[S.hostId] / 3;
+    if (S.ssl)                  m += SSL_YEAR / 12;
+    if (S.ki && S.kiTier)       m += KI_PRICES[S.kiTier];
+    if (S.domain)               m += domainYearPrice() / 12;
+    return m;
+  }
+
+  /* ── Sticky bar ───────────────────────────────────────────────────── */
+  function updateBar() {
+    const chips = [];
+    if (S.domain)                         chips.push({ l: S.domain });
+    if (S.pkgId)                          chips.push({ l: PKG_NAMES[S.pkgId], ac: true });
+    if (S.hostId)                         chips.push({ l: HOST_NAMES[S.hostId] });
+    if (S.ssl)                            chips.push({ l: '🔒 SSL' });
+    if (S.ki && S.kiTier)                 chips.push({ l: '🤖 KI' });
+
+    const bar = document.getElementById('summary-bar');
+    if (!chips.length) { bar.style.display = 'none'; return; }
+    bar.style.display = 'flex';
+    document.getElementById('bar-chips').innerHTML =
+      chips.map(c => `<span class="bar-chip${c.ac ? ' ac' : ''}">${c.l}</span>`).join('');
+    const m = calcMonthly();
+    document.getElementById('bar-total').textContent = m > 0 ? 'ca. ' + m.toFixed(2) + '€/Mo.' : '–';
+  }
+
+  /* ── Step 5: Summary ──────────────────────────────────────────────── */
+  function gotoSummary() {
+    buildSummary();
+    showSection('screen-summary');
+  }
+
+  function buildSummary() {
+    let html = '';
+
+    // Paket (one-time)
+    if (S.pkgId) {
+      const p = PKG_PRICES[S.pkgId];
+      html += sec('Website Paket', [
+        row(PKG_NAMES[S.pkgId], `ab ${fmt(p)}€`, '/ einmalige Entwicklung')
+      ]);
+    }
+
+    // Hosting (per 3 months + monthly equiv)
+    if (S.hostId) {
+      const p = HOST_PRICES[S.hostId];
+      html += sec('Hosting', [
+        row(HOST_NAMES[S.hostId],         `${fmt(p)}€`,          '/ 3 Monate'),
+        row('≈ monatlich', `${fmt(p/3)}€`, '/ Monat', true)
+      ]);
+    }
+
+    // Domain
+    if (S.domain) {
+      const yr = domainYearPrice();
+      html += sec('Domain', [
+        row('www.' + S.domain,  `ca. ${fmt(yr)}€`,      '/ Jahr'),
+        row('≈ monatlich', `ca. ${fmt(yr/12)}€`, '/ Monat', true)
+      ]);
+    }
+
+    // Add-ons
+    const addRows = [];
+    if (S.ssl)            addRows.push(row('🔒 Premium SSL Zertifikat', `${fmt(SSL_YEAR)}€`, '/ Jahr'));
+    if (S.ki && S.kiTier) addRows.push(row('🤖 KI-Integration (' + KI_NAMES[S.kiTier] + ')', `${fmt(KI_PRICES[S.kiTier])}€`, '/ Monat'));
+    if (S.ki && !S.kiTier) addRows.push(row('🤖 KI-Integration', '–', 'Tier noch nicht gewählt'));
+    if (addRows.length) html += sec('Add-ons', addRows);
+
+    document.getElementById('sum-content').innerHTML = html;
+
+    const m = calcMonthly();
+    document.getElementById('sum-grand').textContent =
+      m > 0 ? 'ca. ' + fmt(m) + '€ / Monat' : '–';
+  }
+
+  function sec(title, rows) {
+    return `<div class="sum-sec">
+      <div class="sum-sec-title">${title}</div>
+      ${rows.join('')}
+    </div>`;
+  }
+  function row(label, price, sub, muted) {
+    return `<div class="sum-row">
+      <span class="r-label" style="${muted ? 'color:var(--muted);font-size:.84rem;' : ''}">${label}</span>
+      <span class="r-price" style="${muted ? 'color:var(--muted);font-size:.84rem;font-weight:600;' : ''}">
+        ${price} <span class="r-sub">${sub}</span>
+      </span>
+    </div>`;
+  }
+  function fmt(n) { return Number(n).toFixed(2); }
+
+  /* ── Step 6: Contact ──────────────────────────────────────────────── */
+  function gotoContact() {
+    buildSidebar();
+    showSection('screen-contact');
+  }
+
+  function buildSidebar() {
+    const items = [];
+    if (S.domain)            items.push({ l: 'Domain',    v: 'www.' + S.domain });
+    if (S.pkgId)             items.push({ l: 'Paket',     v: PKG_NAMES[S.pkgId] });
+    if (S.hostId)            items.push({ l: 'Hosting',   v: HOST_NAMES[S.hostId] });
+    if (S.ssl)               items.push({ l: 'Extra SSL', v: fmt(SSL_YEAR) + '€/Jahr' });
+    if (S.ki && S.kiTier)    items.push({ l: 'KI',        v: KI_NAMES[S.kiTier] + ' – ' + fmt(KI_PRICES[S.kiTier]) + '€/Mo.' });
+
+    const m = calcMonthly();
+    let html = items.map(i =>
+      `<div class="cs-row"><span class="cs-lbl">${i.l}</span><span class="cs-val">${i.v}</span></div>`
+    ).join('');
+    html += `<div class="cs-total-line">
+      <span>Geschätzt / Monat</span>
+      <span>ca. ${fmt(m)}€</span>
+    </div>`;
+    document.getElementById('cs-items').innerHTML = html;
+  }
+
+  function insertConfig() {
+    const lines = ['Meine Konfiguration:', ''];
+    if (S.domain)         lines.push('Domain:   www.' + S.domain);
+    if (S.pkgId)          lines.push('Paket:    ' + PKG_NAMES[S.pkgId] + ' (ab ' + fmt(PKG_PRICES[S.pkgId]) + '€ einmalig)');
+    if (S.hostId)         lines.push('Hosting:  ' + HOST_NAMES[S.hostId] + ' (' + fmt(HOST_PRICES[S.hostId]) + '€/3 Monate)');
+    if (S.ssl)            lines.push('Add-on:   Premium SSL – ' + fmt(SSL_YEAR) + '€/Jahr');
+    if (S.ki && S.kiTier) lines.push('Add-on:   KI-Integration – ' + KI_NAMES[S.kiTier] + ' (' + fmt(KI_PRICES[S.kiTier]) + '€/Mo.)');
+    lines.push('');
+    lines.push('Geschätzter monatlicher Preis: ca. ' + fmt(calcMonthly()) + '€/Monat');
+    lines.push('');
+    lines.push('Meine Fragen:');
+    lines.push('');
+
+    const ta = document.getElementById('f-msg');
+    ta.value = lines.join('\n');
+    ta.focus();
+    ta.setSelectionRange(ta.value.length, ta.value.length);
+  }
+
+  function submitForm(e) {
+    e.preventDefault();
+    document.getElementById('contact-form').style.display = 'none';
+    document.getElementById('form-ok').classList.remove('hidden');
+  }
+
+  /* ── Boot ─────────────────────────────────────────────────────────── */
+  showSection('screen-start');
+</script>
+</body>
+</html>
