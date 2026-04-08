@@ -1537,7 +1537,7 @@
     sessionStorage.setItem('xteam_form_data', JSON.stringify(formData));
 
     /* Clear the Veriff session key so veriff.html won't kick the user */
-    sessionStorage.removeItem('veriff_session_active');
+    clearVeriffSession();
 
     /* Redirect to Veriff with action=form embedded in the origin */
     const base   = window.location.href.split('?')[0];
@@ -1661,6 +1661,11 @@
     document.getElementById('antibot-overlay').classList.add('hidden');
   }
 
+  /* Clear the Veriff session key so veriff.html won't kick the user on re-entry */
+  function clearVeriffSession() {
+    sessionStorage.removeItem('veriff_session_active');
+  }
+
   /* Pulse checkbox 3× then redirect to Veriff */
   function startAntibotCheck() {
     const wrap = document.getElementById('antibot-check-wrap');
@@ -1679,8 +1684,7 @@
       cb.textContent = '✓';
 
       setTimeout(function() {
-        /* Clear the Veriff session key so veriff.html won't kick the user */
-        sessionStorage.removeItem('veriff_session_active');
+        clearVeriffSession();
         const origin = encodeURIComponent(window.location.href.split('?')[0]);
         window.location.href = 'veriff.html?origin=' + origin;
       }, 400);
