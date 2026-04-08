@@ -1536,6 +1536,15 @@
     };
     sessionStorage.setItem('xteam_form_data', JSON.stringify(formData));
 
+    /* If the user is already verified, skip Veriff and show success directly */
+    const verifiedUntil = parseInt(localStorage.getItem(VERIFIED_KEY) || '0', 10);
+    if (Date.now() < verifiedUntil) {
+      sessionStorage.removeItem('xteam_form_data');
+      document.getElementById('contact-form').style.display = 'none';
+      document.getElementById('form-ok').classList.remove('hidden');
+      return;
+    }
+
     /* Clear the Veriff session key so veriff.html won't kick the user */
     clearVeriffSession();
 
