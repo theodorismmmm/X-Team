@@ -946,7 +946,7 @@
 <script>
   /* ── Data ─────────────────────────────────────────────────────────── */
   const PKG_NAMES  = { 1: 'Online Shop', 2: 'Restaurant & Physisch', 3: 'Komplett', 4: 'Hobby' };
-  const PKG_PRICES = { 1: 39.99, 2: 59.99, 3: 99.99, 4: 9.99 };  // one-time build
+  const PKG_PRICES = { 1: 39.99, 2: 59.99, 3: 99.99, 4: 9.99 };  // one-time development/setup cost
 
   const HOST_NAMES  = { 1: 'Hobby Hosting', 2: 'Basic Hosting', 3: 'Profi Hosting', 4: 'Super Hosting' };
   const HOST_PRICES = { 1: 30, 2: 75, 3: 110, 4: 225 };  // per 3 months
@@ -1097,9 +1097,8 @@
   /* ── Domain price estimate ────────────────────────────────────────── */
   function domainYearPrice() {
     if (!S.domain) return 12;
-    const tld = S.domain.toLowerCase().includes('.')
-      ? S.domain.toLowerCase().split('.').pop().split('/')[0]
-      : 'de';
+    const lower = S.domain.toLowerCase();
+    const tld = lower.includes('.') ? lower.split('.').pop().split('/')[0] : 'de';
     return DOMAIN_TLD_PRICES[tld] || 12;
   }
 
