@@ -277,6 +277,169 @@
       .section { padding: 40px 16px 100px; }
       #summary-bar { padding: 12px 16px; }
     }
+
+    /* ── Email captcha overlay ────────────────────────────────────── */
+    #email-captcha-overlay {
+      position: fixed; inset: 0; z-index: 8000;
+      background: rgba(0,0,0,.6);
+      backdrop-filter: blur(5px);
+      display: flex; align-items: center; justify-content: center;
+    }
+    #email-captcha-overlay.hidden { display: none !important; }
+    .email-captcha-card {
+      background: #fff; border-radius: 12px;
+      padding: 24px 24px 20px;
+      width: 340px; max-width: 94vw;
+      box-shadow: 0 20px 50px rgba(0,0,0,.35);
+      text-align: center; position: relative;
+    }
+    .email-cap-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 18px; padding-bottom: 14px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .email-cap-logo {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: linear-gradient(135deg,#6c63ff,#00d4ff);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .9rem; color: #fff; font-weight: 900; flex-shrink: 0;
+    }
+    .email-cap-header-text { text-align: left; }
+    .email-cap-title { font-size: .93rem; font-weight: 800; color: #1f2937; }
+    .email-cap-sub   { font-size: .7rem; color: #6b7280; margin-top: 1px; }
+    .email-cap-body  { font-size: .86rem; color: #6b7280; line-height: 1.55; margin-bottom: 16px; }
+    /* hCaptcha-style widget row inside the email popup */
+    .email-cap-widget {
+      display: flex; align-items: center;
+      background: #f9f9f9; border: 1px solid #d3d3d3;
+      border-radius: 4px; padding: 0 12px;
+      height: 68px; cursor: pointer; user-select: none;
+      transition: border-color .2s, box-shadow .2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    }
+    .email-cap-widget:hover {
+      border-color: #6c63ff;
+      box-shadow: 0 2px 8px rgba(108,99,255,.15);
+    }
+    #email-cap-cb {
+      width: 26px; height: 26px; flex-shrink: 0;
+      border: 2px solid #c1c1c1; border-radius: 3px; background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .85rem; transition: border-color .2s, background .2s;
+      position: relative; overflow: visible;
+    }
+    #email-cap-cb.checking {
+      border-color: #6c63ff; background: #f0edff;
+      animation: emailCbPulse .45s ease 3;
+    }
+    #email-cap-cb.checking::before {
+      content: '';
+      position: absolute; top: 50%; left: 50%;
+      width: 26px; height: 26px; border-radius: 3px;
+      background: transparent;
+      border: 2px solid rgba(108,99,255,.55);
+      transform: translate(-50%,-50%) scale(1);
+      animation: emailCbRipple .45s ease-out 3;
+    }
+    #email-cap-cb.checked {
+      border-color: #6c63ff; background: #6c63ff; color: #fff;
+    }
+    @keyframes emailCbPulse {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+    @keyframes emailCbRipple {
+      0%   { transform: translate(-50%,-50%) scale(1); opacity: .7; }
+      100% { transform: translate(-50%,-50%) scale(2.6); opacity: 0; }
+    }
+    .email-cap-label {
+      font-size: .91rem; font-weight: 600; color: #1f2937;
+      flex: 1; padding: 0 10px;
+    }
+    .email-cap-brand {
+      display: flex; flex-direction: column; align-items: center;
+      padding-left: 10px; border-left: 1px solid #ddd; gap: 2px; flex-shrink: 0;
+    }
+    .email-cap-brand-icon {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg,#6c63ff,#00d4ff);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .68rem; color: #fff; font-weight: 900;
+    }
+    .email-cap-brand-name  { font-size: .62rem; font-weight: 700; color: #555; }
+    .email-cap-brand-links { font-size: .55rem; color: #999; }
+    .email-cap-footer {
+      font-size: .7rem; color: #9ca3af;
+      margin-top: 12px;
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+    }
+    .email-cap-close {
+      position: absolute; top: 10px; right: 12px;
+      background: none; border: none; font-size: 1.2rem;
+      color: #9ca3af; cursor: pointer; line-height: 1;
+      transition: color .15s;
+    }
+    .email-cap-close:hover { color: #374151; }
+
+    /* ── Mini verification popup (inside email captcha overlay) ───── */
+    #email-verif-popup {
+      position: fixed; inset: 0; z-index: 8100;
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none; opacity: 0;
+      transition: opacity .25s;
+    }
+    #email-verif-popup.visible {
+      pointer-events: auto; opacity: 1;
+    }
+    .email-verif-card {
+      background: #fff; border-radius: 14px;
+      padding: 28px 26px 24px;
+      width: 310px; max-width: 92vw;
+      box-shadow: 0 20px 50px rgba(0,0,0,.35);
+      text-align: center;
+      transform: scale(.92);
+      transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+    }
+    #email-verif-popup.visible .email-verif-card {
+      transform: scale(1);
+    }
+    .ev-logo {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg,#6c63ff,#00d4ff);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; color: #fff; font-weight: 900;
+      margin: 0 auto 14px;
+    }
+    .ev-title { font-size: 1rem; font-weight: 800; color: #1f2937; margin-bottom: 6px; }
+    .ev-sub   { font-size: .8rem; color: #6b7280; margin-bottom: 18px; }
+    .ev-steps { text-align: left; margin-bottom: 18px; }
+    .ev-step  {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0; border-bottom: 1px solid #f3f4f6;
+      font-size: .82rem; color: #374151;
+    }
+    .ev-step:last-child { border-bottom: none; }
+    .ev-step-icon {
+      width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .68rem;
+    }
+    .ev-step-icon.pending  { background: #f3f4f6; color: #9ca3af; }
+    .ev-step-icon.active   {
+      background: #eff6ff; color: #1a56db;
+      animation: evSpin .8s linear infinite;
+    }
+    .ev-step-icon.done     { background: #f0fdf4; color: #15803d; }
+    @keyframes evSpin { to { transform: rotate(360deg); } }
+    .ev-spinner {
+      width: 34px; height: 34px;
+      border: 3px solid #e5e7eb; border-top-color: #6c63ff;
+      border-radius: 50%; animation: evSpin2 .7s linear infinite;
+      margin: 0 auto 14px;
+    }
+    @keyframes evSpin2 { to { transform: rotate(360deg); } }
+    .ev-progress-label { font-size: .78rem; color: #6b7280; }
   </style>
 </head>
 <body>
@@ -749,6 +912,63 @@
   </div>
 </div>
 
+<!-- ───────────────── EMAIL CAPTCHA OVERLAY ───────────────── -->
+<div id="email-captcha-overlay" class="hidden">
+  <div class="email-captcha-card">
+    <button class="email-cap-close" onclick="closeEmailCaptcha()" title="Schließen">×</button>
+
+    <div class="email-cap-header">
+      <div class="email-cap-logo">h</div>
+      <div class="email-cap-header-text">
+        <div class="email-cap-title">hCaptcha – Sicherheitscheck</div>
+        <div class="email-cap-sub">Schützt vor Spam und automatisierten Anfragen</div>
+      </div>
+    </div>
+
+    <p class="email-cap-body">Bitte bestätige, dass du ein Mensch bist, um fortzufahren.</p>
+
+    <!-- hCaptcha-style widget row -->
+    <div class="email-cap-widget" id="email-cap-widget" onclick="startEmailCapVerif()">
+      <div id="email-cap-cb"></div>
+      <span class="email-cap-label">Ich bin kein Roboter</span>
+      <div class="email-cap-brand">
+        <div class="email-cap-brand-icon">h</div>
+        <span class="email-cap-brand-name">hCaptcha</span>
+        <span class="email-cap-brand-links">Privatsphäre · AGB</span>
+      </div>
+    </div>
+
+    <div class="email-cap-footer">🔒 Sicher &amp; verschlüsselt</div>
+  </div>
+</div>
+
+<!-- ───────────────── MINI VERIFICATION POPUP ───────────────── -->
+<div id="email-verif-popup">
+  <div class="email-verif-card">
+    <div id="ev-checking">
+      <div class="ev-logo">h</div>
+      <div class="ev-title">Verifizierung läuft…</div>
+      <div class="ev-sub">Bitte warte einen Moment.</div>
+      <div class="ev-steps" id="ev-steps-list">
+        <div class="ev-step" id="evs-1">
+          <div class="ev-step-icon pending" id="evi-1">⋯</div>
+          <span>Browser-Analyse</span>
+        </div>
+        <div class="ev-step" id="evs-2">
+          <div class="ev-step-icon pending" id="evi-2">⋯</div>
+          <span>Sicherheits-Check</span>
+        </div>
+        <div class="ev-step" id="evs-3">
+          <div class="ev-step-icon pending" id="evi-3">⋯</div>
+          <span>Identität bestätigen</span>
+        </div>
+      </div>
+      <div class="ev-spinner"></div>
+      <div class="ev-progress-label" id="ev-progress-label">Starte Verifizierung…</div>
+    </div>
+  </div>
+</div>
+
 <!-- ───────────────── SUMMARY BAR ───────────────── -->
 <div id="summary-bar" style="display:none;">
   <div class="s-items" id="summary-chips"></div>
@@ -990,6 +1210,89 @@
   }
 
   function sendEmail() {
+    showEmailCaptcha();
+  }
+
+  function showEmailCaptcha() {
+    /* Reset state */
+    const cb = document.getElementById('email-cap-cb');
+    cb.className = '';
+    cb.textContent = '';
+    const widget = document.getElementById('email-cap-widget');
+    widget.onclick = startEmailCapVerif;
+    widget.style.cursor = 'pointer';
+    document.getElementById('email-captcha-overlay').classList.remove('hidden');
+    document.getElementById('email-verif-popup').classList.remove('visible');
+  }
+
+  function closeEmailCaptcha() {
+    document.getElementById('email-captcha-overlay').classList.add('hidden');
+    document.getElementById('email-verif-popup').classList.remove('visible');
+  }
+
+  function startEmailCapVerif() {
+    const widget = document.getElementById('email-cap-widget');
+    const cb     = document.getElementById('email-cap-cb');
+    /* Disable further clicks */
+    widget.onclick = null;
+    widget.style.cursor = 'default';
+    cb.classList.add('checking');
+
+    /* After 3 pulses (~1.4 s), check mark and show mini verif popup */
+    setTimeout(function() {
+      cb.classList.remove('checking');
+      cb.classList.add('checked');
+      cb.textContent = '✓';
+      /* Short pause, then open mini verification popup */
+      setTimeout(function() {
+        showEmailVerifPopup();
+      }, 300);
+    }, 1400);
+  }
+
+  function showEmailVerifPopup() {
+    /* Animate steps one by one */
+    const steps = [
+      { n:'1', label:'Browser wird analysiert…' },
+      { n:'2', label:'Sicherheitsprüfung läuft…' },
+      { n:'3', label:'Identität wird bestätigt…' },
+    ];
+    /* Reset all steps derived from the same array to avoid ID drift */
+    steps.forEach(function(s) {
+      const icon = document.getElementById('evi-' + s.n);
+      icon.className = 'ev-step-icon pending';
+      icon.textContent = '⋯';
+    });
+    document.getElementById('ev-progress-label').textContent = 'Starte Verifizierung…';
+    document.getElementById('email-verif-popup').classList.add('visible');
+
+    /* Each step: 850 ms active → done; steps are spaced 1100 ms apart
+       (200 ms initial offset + 850 ms active + ~50 ms buffer) */
+    let delay = 200;
+    steps.forEach(function(s, idx) {
+      setTimeout(function() {
+        const icon = document.getElementById('evi-' + s.n);
+        icon.className = 'ev-step-icon active';
+        icon.textContent = '↻';
+        document.getElementById('ev-progress-label').textContent = s.label;
+        setTimeout(function() {
+          icon.className = 'ev-step-icon done';
+          icon.textContent = '✓';
+          if (idx === steps.length - 1) {
+            /* All steps done – close and proceed */
+            setTimeout(function() {
+              document.getElementById('email-verif-popup').classList.remove('visible');
+              document.getElementById('email-captcha-overlay').classList.add('hidden');
+              doSendEmail();
+            }, 600);
+          }
+        }, 850);
+      }, delay);
+      delay += 1100;
+    });
+  }
+
+  function doSendEmail() {
     const email = document.getElementById('contact-email').value;
     const recipient = 'info@x-team.de';
     const subject = encodeURIComponent('Website Anfrage – X-Team');
