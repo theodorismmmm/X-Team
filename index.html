@@ -478,6 +478,45 @@
     }
     .bar-right strong { font-size: 1.15rem; font-weight: 900; color: #fff; margin-left: 8px; }
 
+    /* ── Start Screen Background ─────────────────────────────────────── */
+    #screen-start {
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(26,86,219,.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(96,165,250,.07) 0%, transparent 55%),
+        radial-gradient(ellipse at 60% 80%, rgba(13,27,42,.06) 0%, transparent 50%),
+        linear-gradient(160deg, #e8ecf3 0%, #f0f2f5 45%, #e9edf5 100%);
+      min-height: calc(100vh - 62px);
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── Typewriter ──────────────────────────────────────────────────── */
+    .typewriter-wrap {
+      margin-bottom: 22px;
+      min-height: 2.4rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .typewriter-prefix {
+      font-size: 1.15rem; font-weight: 700;
+      color: var(--muted); margin-right: 8px; white-space: nowrap;
+    }
+    .typewriter-text {
+      font-size: 1.15rem; font-weight: 800;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+    .typewriter-cursor {
+      display: inline-block;
+      width: 2px; height: 1.15em;
+      background: var(--accent);
+      margin-left: 2px;
+      vertical-align: middle;
+      animation: blink .7s step-end infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+
     /* ── Responsive ──────────────────────────────────────────────────── */
     @media (max-width: 900px) {
       .contact-grid { grid-template-columns: 1fr; }
@@ -531,6 +570,10 @@
   <div class="hero-section fade-in">
     <div class="hero-tag">Webdesign &amp; Entwicklung</div>
     <h1>Professionelle Websites<br>von <span>X-Team</span></h1>
+    <div class="typewriter-wrap">
+      <span class="typewriter-prefix">Wir sind</span>
+      <span class="typewriter-text" id="tw-text"></span><span class="typewriter-cursor" id="tw-cursor"></span>
+    </div>
     <p>Maßgeschneiderte Webseiten für Unternehmen, Restaurants, Shops und mehr –<br>
        transparent konfiguriert, professionell umgesetzt.</p>
     <div class="features-row">
@@ -1244,6 +1287,40 @@
     document.getElementById('contact-form').style.display = 'none';
     document.getElementById('form-ok').classList.remove('hidden');
   }
+
+  /* ── Typewriter ───────────────────────────────────────────────────── */
+  (function() {
+    const phrases = ['Schnell & Zuverlässig', 'Professionell & Modern', 'Transparent & Pünktlich'];
+    const el = document.getElementById('tw-text');
+    if (!el) return;
+    let phraseIdx = 0, charIdx = 0, deleting = false;
+    const TYPING_SPEED = 80, DELETING_SPEED = 45, PAUSE_AFTER_TYPING = 1800, PAUSE_AFTER_DELETE = 400;
+
+    function tick() {
+      const phrase = phrases[phraseIdx];
+      if (!deleting) {
+        charIdx++;
+        el.textContent = phrase.slice(0, charIdx);
+        if (charIdx === phrase.length) {
+          deleting = true;
+          setTimeout(tick, PAUSE_AFTER_TYPING);
+          return;
+        }
+        setTimeout(tick, TYPING_SPEED);
+      } else {
+        charIdx--;
+        el.textContent = phrase.slice(0, charIdx);
+        if (charIdx === 0) {
+          deleting = false;
+          phraseIdx = (phraseIdx + 1) % phrases.length;
+          setTimeout(tick, PAUSE_AFTER_DELETE);
+          return;
+        }
+        setTimeout(tick, DELETING_SPEED);
+      }
+    }
+    setTimeout(tick, 600);
+  })();
 
   /* ── Boot ─────────────────────────────────────────────────────────── */
   showSection('screen-start');
