@@ -545,56 +545,115 @@
     }
     #antibot-overlay.hidden { display: none !important; }
     .antibot-card {
-      background: #fff; border-radius: 16px;
-      padding: 52px 44px 44px;
-      max-width: 440px; width: 90%;
-      box-shadow: 0 32px 80px rgba(0,0,0,.35);
+      background: #fff; border-radius: 12px;
+      padding: 28px 28px 22px;
+      max-width: 380px; width: 90%;
+      box-shadow: 0 24px 60px rgba(0,0,0,.35);
       text-align: center; position: relative;
     }
-    .antibot-shield {
-      font-size: 3rem; margin-bottom: 18px; display: block;
+    /* hCaptcha-like card header */
+    .antibot-card-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 20px; padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-light);
     }
-    .antibot-card h2 {
-      font-size: 1.45rem; font-weight: 900;
-      color: var(--dark); margin-bottom: 8px;
+    .hcap-logo-mark {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, #1a56db, #60a5fa);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; color: #fff; font-weight: 900; flex-shrink: 0;
+    }
+    .hcap-header-text { text-align: left; }
+    .hcap-header-title {
+      font-size: .95rem; font-weight: 800; color: var(--dark);
+    }
+    .hcap-header-sub {
+      font-size: .72rem; color: var(--muted); margin-top: 1px;
     }
     .antibot-card p {
-      color: var(--muted); font-size: .92rem;
-      line-height: 1.65; margin-bottom: 32px;
+      color: var(--muted); font-size: .88rem;
+      line-height: 1.6; margin-bottom: 20px;
     }
+    /* hCaptcha-style widget row */
     .antibot-check-wrap {
-      display: flex; align-items: center; gap: 14px;
-      background: #f8fafc; border: 2px solid var(--border);
-      border-radius: 10px; padding: 16px 20px;
-      cursor: pointer; user-select: none;
+      display: flex; align-items: center;
+      background: #f9f9f9; border: 1px solid #d3d3d3;
+      border-radius: 4px; padding: 0 14px;
+      height: 74px; cursor: pointer; user-select: none;
       transition: border-color .2s, box-shadow .2s;
-      margin-bottom: 22px;
+      margin-bottom: 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,.08);
     }
-    .antibot-check-wrap:hover { border-color: var(--accent); }
+    .antibot-check-wrap:hover {
+      border-color: var(--accent);
+      box-shadow: 0 2px 8px rgba(26,86,219,.15);
+    }
     #antibot-cb {
-      width: 26px; height: 26px; flex-shrink: 0;
-      border: 2.5px solid var(--border);
-      border-radius: 5px; background: #fff;
+      width: 28px; height: 28px; flex-shrink: 0;
+      border: 2px solid #c1c1c1;
+      border-radius: 3px; background: #fff;
       display: flex; align-items: center; justify-content: center;
-      font-size: .85rem; transition: all .2s;
+      font-size: .9rem; transition: border-color .2s, background .2s;
+      position: relative; overflow: visible;
+    }
+    /* Ripple ring that expands from the center of the checkbox */
+    #antibot-cb.checking::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 28px; height: 28px;
+      border-radius: 3px;
+      background: transparent;
+      border: 2px solid rgba(26,86,219,.55);
+      transform: translate(-50%, -50%) scale(1);
+      animation: cbRipple .45s ease-out 3;
     }
     #antibot-cb.checking {
       border-color: var(--accent); background: var(--accent-light);
-      animation: cbPulse .4s ease 3;
+      animation: cbPulse .45s ease 3;
     }
     #antibot-cb.checked {
       border-color: var(--accent); background: var(--accent); color: #fff;
+      border-radius: 3px;
     }
+    /* Scale pulse stays centered (transform-origin is center by default) */
     @keyframes cbPulse {
-      0%   { transform: scale(1);    box-shadow: 0 0 0 0 rgba(26,86,219,.45); }
-      50%  { transform: scale(1.18); box-shadow: 0 0 0 8px rgba(26,86,219,0); }
-      100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(26,86,219,0); }
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.15); }
+      100% { transform: scale(1); }
     }
-    .antibot-check-label { font-size: .95rem; font-weight: 700; color: var(--dark); }
+    /* Ripple ring expands outward from the center of the box */
+    @keyframes cbRipple {
+      0%   { transform: translate(-50%, -50%) scale(1); opacity: .7; }
+      100% { transform: translate(-50%, -50%) scale(2.6); opacity: 0; }
+    }
+    .antibot-check-label {
+      font-size: .93rem; font-weight: 600; color: var(--dark);
+      flex: 1; padding: 0 12px;
+    }
+    /* hCaptcha branding on right side of widget */
+    .hcap-brand {
+      display: flex; flex-direction: column; align-items: center;
+      padding-left: 12px; border-left: 1px solid #ddd;
+      gap: 2px; flex-shrink: 0;
+    }
+    .hcap-brand-icon {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, #1a56db, #60a5fa);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem; color: #fff; font-weight: 900;
+    }
+    .hcap-brand-name {
+      font-size: .65rem; font-weight: 700; color: #555;
+      letter-spacing: .3px;
+    }
+    .hcap-brand-links {
+      font-size: .58rem; color: #999;
+    }
     .antibot-footer {
       font-size: .72rem; color: var(--muted);
       display: flex; align-items: center; justify-content: center; gap: 6px;
-      margin-top: 4px;
+      margin-top: 14px;
     }
     .antibot-footer img { height: 14px; opacity: .5; }
 
@@ -669,15 +728,28 @@
 <!-- ═══════════════ ANTI-BOT / VERIFF OVERLAY ═══════════════ -->
 <div id="antibot-overlay">
   <div class="antibot-card">
-    <span class="antibot-shield">🛡️</span>
+
+    <!-- hCaptcha-style card header -->
+    <div class="antibot-card-header">
+      <div class="hcap-logo-mark">h</div>
+      <div class="hcap-header-text">
+        <div class="hcap-header-title">hCaptcha – Sicherheitscheck</div>
+        <div class="hcap-header-sub">Schützt diese Website vor Spam und Missbrauch</div>
+      </div>
+    </div>
 
     <!-- Step 1: initial checkbox -->
     <div id="antibot-main">
-      <h2>Anti Bot Test</h2>
       <p>Bitte bestätige, dass du ein Mensch bist, bevor du fortfährst.</p>
+      <!-- hCaptcha-style widget row -->
       <div class="antibot-check-wrap" id="antibot-check-wrap" onclick="startAntibotCheck()">
         <div id="antibot-cb"></div>
         <span class="antibot-check-label">Ich bin kein Roboter</span>
+        <div class="hcap-brand">
+          <div class="hcap-brand-icon">h</div>
+          <span class="hcap-brand-name">hCaptcha</span>
+          <span class="hcap-brand-links">Privatsphäre · AGB</span>
+        </div>
       </div>
       <div class="antibot-footer">
         🔒 Sicher &amp; verschlüsselt &nbsp;·&nbsp; powered by <strong>Veriff</strong>
