@@ -551,7 +551,7 @@
       box-shadow: 0 24px 60px rgba(0,0,0,.35);
       text-align: center; position: relative;
     }
-    /* hCaptcha-like card header */
+    /* Veriff card header (hCaptcha-style appearance) */
     .antibot-card-header {
       display: flex; align-items: center; gap: 10px;
       margin-bottom: 20px; padding-bottom: 16px;
@@ -559,9 +559,9 @@
     }
     .hcap-logo-mark {
       width: 36px; height: 36px; border-radius: 50%;
-      background: linear-gradient(135deg, #1a56db, #60a5fa);
+      background: linear-gradient(135deg, #1a56db, #3b82f6);
       display: flex; align-items: center; justify-content: center;
-      font-size: 1rem; color: #fff; font-weight: 900; flex-shrink: 0;
+      font-size: .85rem; color: #fff; font-weight: 900; flex-shrink: 0;
     }
     .hcap-header-text { text-align: left; }
     .hcap-header-title {
@@ -574,7 +574,7 @@
       color: var(--muted); font-size: .88rem;
       line-height: 1.6; margin-bottom: 20px;
     }
-    /* hCaptcha-style widget row */
+    /* Veriff widget row (hCaptcha-style appearance) */
     .antibot-check-wrap {
       display: flex; align-items: center;
       background: #f9f9f9; border: 1px solid #d3d3d3;
@@ -631,7 +631,7 @@
       font-size: .93rem; font-weight: 600; color: var(--dark);
       flex: 1; padding: 0 12px;
     }
-    /* hCaptcha branding on right side of widget */
+    /* Veriff branding on right side of widget */
     .hcap-brand {
       display: flex; flex-direction: column; align-items: center;
       padding-left: 12px; border-left: 1px solid #ddd;
@@ -639,9 +639,9 @@
     }
     .hcap-brand-icon {
       width: 32px; height: 32px; border-radius: 50%;
-      background: linear-gradient(135deg, #1a56db, #60a5fa);
+      background: linear-gradient(135deg, #1a56db, #3b82f6);
       display: flex; align-items: center; justify-content: center;
-      font-size: .75rem; color: #fff; font-weight: 900;
+      font-size: .72rem; color: #fff; font-weight: 900;
     }
     .hcap-brand-name {
       font-size: .65rem; font-weight: 700; color: #555;
@@ -729,11 +729,11 @@
 <div id="antibot-overlay">
   <div class="antibot-card">
 
-    <!-- hCaptcha-style card header -->
+    <!-- Veriff-branded card header -->
     <div class="antibot-card-header">
-      <div class="hcap-logo-mark">h</div>
+      <div class="hcap-logo-mark">V</div>
       <div class="hcap-header-text">
-        <div class="hcap-header-title">hCaptcha – Sicherheitscheck</div>
+        <div class="hcap-header-title">Veriff – Sicherheitscheck</div>
         <div class="hcap-header-sub">Schützt diese Website vor Spam und Missbrauch</div>
       </div>
     </div>
@@ -741,13 +741,13 @@
     <!-- Step 1: initial checkbox -->
     <div id="antibot-main">
       <p>Bitte bestätige, dass du ein Mensch bist, bevor du fortfährst.</p>
-      <!-- hCaptcha-style widget row -->
+      <!-- Veriff-branded widget row (hCaptcha-style appearance) -->
       <div class="antibot-check-wrap" id="antibot-check-wrap" onclick="startAntibotCheck()">
         <div id="antibot-cb"></div>
         <span class="antibot-check-label">Ich bin kein Roboter</span>
         <div class="hcap-brand">
-          <div class="hcap-brand-icon">h</div>
-          <span class="hcap-brand-name">hCaptcha</span>
+          <div class="hcap-brand-icon">V</div>
+          <span class="hcap-brand-name">Veriff</span>
           <span class="hcap-brand-links">Privatsphäre · AGB</span>
         </div>
       </div>
@@ -1526,8 +1526,23 @@
 
   function submitForm(e) {
     e.preventDefault();
-    document.getElementById('contact-form').style.display = 'none';
-    document.getElementById('form-ok').classList.remove('hidden');
+
+    /* Save form data in sessionStorage before redirecting to Veriff */
+    const formData = {
+      name:  document.getElementById('f-name').value,
+      email: document.getElementById('f-email').value,
+      phone: document.getElementById('f-phone').value,
+      msg:   document.getElementById('f-msg').value
+    };
+    sessionStorage.setItem('xteam_form_data', JSON.stringify(formData));
+
+    /* Clear the Veriff session key so veriff.html won't kick the user */
+    clearVeriffSession();
+
+    /* Redirect to Veriff with action=form embedded in the origin */
+    const base   = window.location.href.split('?')[0];
+    const origin = encodeURIComponent(base + '?action=form');
+    window.location.href = 'veriff.html?origin=' + origin;
   }
 
   /* ── Typewriter ───────────────────────────────────────────────────── */
@@ -1575,6 +1590,29 @@
   const VALID_CODES = ['4912', '3099'];
 
   (function initAntibot() {
+    const params = new URLSearchParams(window.location.search);
+    const code   = params.get('vcode');
+    const action = params.get('action');
+
+    /* Strip all Veriff params from URL without reload */
+    if (code || action) {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+
+    /* ── Returned from Veriff after form submission ── */
+    if (action === 'form' && code && VALID_CODES.includes(code)) {
+      markVerified();
+      /* Show the contact screen with success state */
+      showSection('screen-contact');
+      buildSidebar();
+      document.getElementById('contact-form').style.display = 'none';
+      document.getElementById('form-ok').classList.remove('hidden');
+      /* Clean up saved form data */
+      sessionStorage.removeItem('xteam_form_data');
+      document.getElementById('antibot-overlay').classList.add('hidden');
+      return;
+    }
+
     const verifiedUntil = parseInt(localStorage.getItem(VERIFIED_KEY) || '0', 10);
     if (Date.now() < verifiedUntil) {
       /* Already verified – hide overlay silently */
@@ -1582,14 +1620,8 @@
       return;
     }
 
-    const params = new URLSearchParams(window.location.search);
-    const code   = params.get('vcode');
-
     if (code) {
-      /* Arrived back from Veriff redirect – strip param from URL without reload */
-      const cleanUrl = window.location.pathname;
-      window.history.replaceState({}, '', cleanUrl);
-
+      /* Arrived back from Veriff redirect (initial antibot check) */
       if (VALID_CODES.includes(code)) {
         /* Auto-fill code digits and skip to success quickly */
         showCodeScreen();
@@ -1629,6 +1661,11 @@
     document.getElementById('antibot-overlay').classList.add('hidden');
   }
 
+  /* Clear the Veriff session key so veriff.html won't kick the user on re-entry */
+  function clearVeriffSession() {
+    sessionStorage.removeItem('veriff_session_active');
+  }
+
   /* Pulse checkbox 3× then redirect to Veriff */
   function startAntibotCheck() {
     const wrap = document.getElementById('antibot-check-wrap');
@@ -1647,6 +1684,7 @@
       cb.textContent = '✓';
 
       setTimeout(function() {
+        clearVeriffSession();
         const origin = encodeURIComponent(window.location.href.split('?')[0]);
         window.location.href = 'veriff.html?origin=' + origin;
       }, 400);
