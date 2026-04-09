@@ -712,53 +712,6 @@
     }
     .antibot-footer img { height: 14px; opacity: .5; }
 
-    /* ── Code-entry screen (inside overlay) ─────────────────────────── */
-    #code-screen { display: none; flex-direction: column; align-items: center; }
-    #code-screen.visible { display: flex; }
-    .code-input-row {
-      display: flex; gap: 10px; margin: 24px 0 16px;
-    }
-    .code-digit {
-      width: 54px; height: 66px; border: 2.5px solid var(--border);
-      border-radius: 10px; background: #f8fafc;
-      font-size: 2rem; font-weight: 900; color: var(--dark);
-      text-align: center; outline: none; font-family: inherit;
-      transition: border-color .2s, box-shadow .2s;
-      caret-color: var(--accent);
-    }
-    .code-digit:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26,86,219,.12); }
-    .code-submit-btn {
-      width: 100%; padding: 13px; background: var(--accent);
-      color: #fff; border: none; border-radius: 10px;
-      font-size: 1rem; font-weight: 800; cursor: pointer;
-      transition: background .2s, transform .15s;
-    }
-    .code-submit-btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
-
-    #antibot-cb.error {
-      border-color: #dc2626; background: #dc2626; color: #fff;
-      border-radius: 3px;
-    }
-    .antibot-check-wrap.error {
-      border-color: #dc2626;
-      box-shadow: 0 2px 8px rgba(220,38,38,.18);
-    }
-    .antibot-error-msg {
-      font-size: .82rem; color: #dc2626; font-weight: 600;
-      margin-top: 10px; display: none;
-    }
-    .antibot-error-msg.visible { display: block; }
-    /* loading spinner for manual code entry */
-    .spinner {
-      width: 42px; height: 42px;
-      border: 4px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin .8s linear infinite;
-      margin: 24px auto;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
     /* ── Veriff success screen ───────────────────────────────────────── */
     #veriff-success { display: none; flex-direction: column; align-items: center; }
     #veriff-success.visible { display: flex; }
@@ -822,24 +775,9 @@
       <div class="antibot-footer">
         🔒 Sicher &amp; verschlüsselt &nbsp;·&nbsp; powered by <strong>Veriff</strong>
       </div>
-      <div class="antibot-error-msg" id="antibot-error-msg">⚠ Verifikation fehlgeschlagen – bitte Code manuell eingeben.</div>
     </div>
 
-    <!-- Step 2: code entry (shown on Veriff callback) -->
-    <div id="code-screen">
-      <h2>Bestätigungscode</h2>
-      <p>Bitte gib den 4-stelligen Code ein, den du erhalten hast.</p>
-      <div class="code-input-row" id="code-input-row">
-        <input class="code-digit" id="cd0" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" oninput="onDigit(this,0)" onkeydown="onDigitKey(event,0)" />
-        <input class="code-digit" id="cd1" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" oninput="onDigit(this,1)" onkeydown="onDigitKey(event,1)" />
-        <input class="code-digit" id="cd2" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" oninput="onDigit(this,2)" onkeydown="onDigitKey(event,2)" />
-        <input class="code-digit" id="cd3" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" oninput="onDigit(this,3)" onkeydown="onDigitKey(event,3)" />
-      </div>
-      <div id="code-spinner" class="spinner hidden"></div>
-      <button class="code-submit-btn" id="code-submit-btn" onclick="submitCode()">Code bestätigen</button>
-    </div>
-
-    <!-- Step 3: success -->
+    <!-- Step 2: success -->
     <div id="veriff-success">
       <div class="vs-check">✅</div>
       <div class="vs-title">Du wirst für 24h nicht mehr gestört</div>
@@ -1717,21 +1655,19 @@
 
   /* Storage key used to remember verified status for 24 h */
   const VERIFIED_KEY = 'xteam_verified_until';
-  /* Expected valid codes from Veriff */
-  const VALID_CODES = ['4912', '3099'];
 
   (function initAntibot() {
-    const params = new URLSearchParams(window.location.search);
-    const code   = params.get('vcode');
-    const action = params.get('action');
+    const params   = new URLSearchParams(window.location.search);
+    const verified = params.get('verified');
+    const action   = params.get('action');
 
     /* Strip all Veriff params from URL without reload */
-    if (code || action) {
+    if (verified || action) {
       window.history.replaceState({}, '', window.location.pathname);
     }
 
     /* ── Returned from Veriff after form submission ── */
-    if (action === 'form' && code && VALID_CODES.includes(code)) {
+    if (action === 'form' && verified) {
       markVerified();
       /* Show the contact screen with success state */
       showSection('screen-contact');
@@ -1751,15 +1687,10 @@
       return;
     }
 
-    if (code) {
-      /* Arrived back from Veriff redirect (initial antibot check) */
-      if (VALID_CODES.includes(code)) {
-        /* Show red error state first, then transition to manual code-entry screen */
-        showErrorThenCodeScreen(code);
-      } else {
-        /* Invalid code from redirect – just show checkbox again */
-        showAntibotMain();
-      }
+    if (verified) {
+      /* Arrived back from Veriff redirect – mark verified and show success */
+      markVerified();
+      showSuccessScreen();
     } else {
       /* Normal first load – show checkbox */
       showAntibotMain();
@@ -1772,40 +1703,8 @@
     document.getElementById('veriff-success').classList.remove('visible');
   }
 
-  function showErrorThenCodeScreen(code) {
-    /* Show main view with checkbox in red/error state */
-    showAntibotMain();
-    const cb   = document.getElementById('antibot-cb');
-    const wrap = document.getElementById('antibot-check-wrap');
-    const msg  = document.getElementById('antibot-error-msg');
-
-    cb.classList.add('error');
-    cb.textContent = '✗';
-    wrap.classList.add('error');
-    wrap.onclick = null;
-    wrap.style.cursor = 'default';
-    msg.classList.add('visible');
-
-    /* After a short pause, transition to the manual code-entry screen */
-    setTimeout(function() {
-      msg.classList.remove('visible');
-      showCodeScreen();
-      autoFillCode(code, function() {
-        markVerified();
-        showSuccessScreen();
-      });
-    }, 1600);
-  }
-
-  function showCodeScreen() {
-    document.getElementById('antibot-main').style.display = 'none';
-    document.getElementById('code-screen').classList.add('visible');
-    document.getElementById('veriff-success').classList.remove('visible');
-  }
-
   function showSuccessScreen() {
     document.getElementById('antibot-main').style.display = 'none';
-    document.getElementById('code-screen').classList.remove('visible');
     document.getElementById('veriff-success').classList.add('visible');
   }
 

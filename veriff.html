@@ -184,10 +184,6 @@
   var params = new URLSearchParams(window.location.search);
   var origin = params.get('origin') || '';
 
-  /* Pick verification code */
-  var CODES = ['4912', '3099'];
-  var verifyCode = CODES[Math.floor(Math.random() * CODES.length)];
-
   var verifying = false;
 
   function startVerification() {
@@ -202,18 +198,18 @@
       row.classList.remove('verifying');
       row.classList.add('done');
       document.getElementById('cb-label').textContent = 'Verifizierung erfolgreich';
-      redirectBack(verifyCode);
+      redirectBack();
     }, 1400);
   }
 
-  function redirectBack(code) {
+  function redirectBack() {
     if (!origin) {
-      window.location.href = 'index.html?vcode=' + code;
+      window.location.href = 'index.html?verified=1';
       return;
     }
     var base = decodeURIComponent(origin);
     var sep  = base.indexOf('?') !== -1 ? '&' : '?';
-    window.location.href = base + sep + 'vcode=' + code;
+    window.location.href = base + sep + 'verified=1';
   }
 </script>
 </body>
