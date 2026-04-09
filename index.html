@@ -1742,52 +1742,8 @@
     }, 1300);
   }
 
-  /* Auto-fills the 4 digit boxes one by one, then fires callback */
-  function autoFillCode(code, cb) {
-    const digits = code.split('');
-    let i = 0;
-    const interval = setInterval(function() {
-      if (i >= digits.length) {
-        clearInterval(interval);
-        /* Brief pause then trigger */
-        setTimeout(cb, 350);
-        return;
-      }
-      document.getElementById('cd' + i).value = digits[i];
-      i++;
-    }, 120);
-  }
-
   function markVerified() {
     localStorage.setItem(VERIFIED_KEY, String(Date.now() + 24 * 60 * 60 * 1000));
-  }
-
-  /* Manual code entry helpers */
-  function onDigit(el, idx) {
-    el.value = el.value.replace(/[^0-9]/g, '').slice(0, 1);
-    if (el.value && idx < 3) document.getElementById('cd' + (idx + 1)).focus();
-  }
-
-  function onDigitKey(e, idx) {
-    if (e.key === 'Backspace' && !document.getElementById('cd' + idx).value && idx > 0) {
-      document.getElementById('cd' + (idx - 1)).focus();
-    }
-  }
-
-  function submitCode() {
-    const code = [0,1,2,3].map(i => document.getElementById('cd' + i).value).join('');
-    if (code.length < 4) return;
-
-    /* Hide submit button, hide inputs, show spinner – manual entry never completes.
-       SECURITY: Manual code entry is intentionally blocked to prevent bypass attacks.
-       Users must complete the full Veriff redirect flow. The spinner runs indefinitely
-       to signal that the action is processing while giving no useful response. */
-    document.getElementById('code-submit-btn').classList.add('hidden');
-    document.getElementById('code-input-row').style.opacity = '0.3';
-    document.getElementById('code-spinner').classList.remove('hidden');
-
-    /* Manual entry is intentionally blocked – spinner keeps spinning indefinitely.
-       Only the automatic Veriff redirect successfully validates the code. */
   }
 </script>
 </body>
