@@ -146,44 +146,6 @@
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── Code reveal ── */
-    #code-section {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 24px;
-      animation: fadeUp .4s ease forwards;
-    }
-    #code-section.visible { display: flex; }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .code-label {
-      font-size: .7rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-    }
-    .code-value {
-      font-size: 3.2rem;
-      font-weight: 900;
-      letter-spacing: 14px;
-      color: var(--accent);
-      text-shadow: 0 2px 20px rgba(26,86,219,.2);
-      animation: popIn .4s cubic-bezier(.34,1.56,.64,1) forwards;
-    }
-    @keyframes popIn {
-      from { transform: scale(.7); opacity: 0; }
-      to   { transform: scale(1);  opacity: 1; }
-    }
-    .redirect-note {
-      font-size: .78rem;
-      color: var(--muted);
-    }
-    .redirect-note strong { color: var(--accent); }
-
     /* ── Footer ── */
     .footer {
       margin-top: 8px;
@@ -215,23 +177,12 @@
     </div>
   </div>
 
-  <!-- Code (shown after verification) -->
-  <div id="code-section">
-    <div class="code-label">Dein Bestätigungscode</div>
-    <div class="code-value" id="code-display"></div>
-    <div class="redirect-note">Weiterleitung in <strong id="countdown">3</strong> Sekunden&hellip;</div>
-  </div>
-
   <div class="footer">&#128274; Gesicherte Verbindung &middot; Daten werden nicht gespeichert</div>
 </div>
 
 <script>
   var params = new URLSearchParams(window.location.search);
   var origin = params.get('origin') || '';
-
-  /* Pick verification code */
-  var CODES = ['4912', '3099'];
-  var verifyCode = CODES[Math.floor(Math.random() * CODES.length)];
 
   var verifying = false;
 
@@ -247,35 +198,18 @@
       row.classList.remove('verifying');
       row.classList.add('done');
       document.getElementById('cb-label').textContent = 'Verifizierung erfolgreich';
-      showCode();
+      redirectBack();
     }, 1400);
   }
 
-  function showCode() {
-    document.getElementById('code-display').textContent = verifyCode;
-    var section = document.getElementById('code-section');
-    section.classList.add('visible');
-
-    var remaining = 3;
-    var counter = document.getElementById('countdown');
-    var interval = setInterval(function() {
-      remaining--;
-      counter.textContent = remaining;
-      if (remaining <= 0) {
-        clearInterval(interval);
-        redirectBack(verifyCode);
-      }
-    }, 1000);
-  }
-
-  function redirectBack(code) {
+  function redirectBack() {
     if (!origin) {
-      window.location.href = 'index.html?vcode=' + code;
+      window.location.href = 'index.html?verified=1';
       return;
     }
     var base = decodeURIComponent(origin);
     var sep  = base.indexOf('?') !== -1 ? '&' : '?';
-    window.location.href = base + sep + 'vcode=' + code;
+    window.location.href = base + sep + 'verified=1';
   }
 </script>
 </body>

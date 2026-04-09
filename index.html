@@ -712,40 +712,6 @@
     }
     .antibot-footer img { height: 14px; opacity: .5; }
 
-    /* ── Code-entry screen (inside overlay) ─────────────────────────── */
-    #code-screen { display: none; flex-direction: column; align-items: center; }
-    #code-screen.visible { display: flex; }
-    .code-input-row {
-      display: flex; gap: 10px; margin: 24px 0 16px;
-    }
-    .code-digit {
-      width: 54px; height: 66px; border: 2.5px solid var(--border);
-      border-radius: 10px; background: #f8fafc;
-      font-size: 2rem; font-weight: 900; color: var(--dark);
-      text-align: center; outline: none; font-family: inherit;
-      transition: border-color .2s, box-shadow .2s;
-      caret-color: var(--accent);
-    }
-    .code-digit:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26,86,219,.12); }
-    .code-submit-btn {
-      width: 100%; padding: 13px; background: var(--accent);
-      color: #fff; border: none; border-radius: 10px;
-      font-size: 1rem; font-weight: 800; cursor: pointer;
-      transition: background .2s, transform .15s;
-    }
-    .code-submit-btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
-
-    /* loading spinner for manual code entry */
-    .spinner {
-      width: 42px; height: 42px;
-      border: 4px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin .8s linear infinite;
-      margin: 24px auto;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
     /* ── Veriff success screen ───────────────────────────────────────── */
     #veriff-success { display: none; flex-direction: column; align-items: center; }
     #veriff-success.visible { display: flex; }
@@ -811,21 +777,7 @@
       </div>
     </div>
 
-    <!-- Step 2: code entry (shown on Veriff callback) -->
-    <div id="code-screen">
-      <h2>Bestätigungscode</h2>
-      <p>Bitte gib den 4-stelligen Code ein, den du erhalten hast.</p>
-      <div class="code-input-row" id="code-input-row">
-        <input class="code-digit" id="cd0" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" oninput="onDigit(this,0)" onkeydown="onDigitKey(event,0)" />
-        <input class="code-digit" id="cd1" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" oninput="onDigit(this,1)" onkeydown="onDigitKey(event,1)" />
-        <input class="code-digit" id="cd2" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" oninput="onDigit(this,2)" onkeydown="onDigitKey(event,2)" />
-        <input class="code-digit" id="cd3" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" oninput="onDigit(this,3)" onkeydown="onDigitKey(event,3)" />
-      </div>
-      <div id="code-spinner" class="spinner hidden"></div>
-      <button class="code-submit-btn" id="code-submit-btn" onclick="submitCode()">Code bestätigen</button>
-    </div>
-
-    <!-- Step 3: success -->
+    <!-- Step 2: success -->
     <div id="veriff-success">
       <div class="vs-check">✅</div>
       <div class="vs-title">Du wirst für 24h nicht mehr gestört</div>
@@ -1703,21 +1655,19 @@
 
   /* Storage key used to remember verified status for 24 h */
   const VERIFIED_KEY = 'xteam_verified_until';
-  /* Expected valid codes from Veriff */
-  const VALID_CODES = ['4912', '3099'];
 
   (function initAntibot() {
-    const params = new URLSearchParams(window.location.search);
-    const code   = params.get('vcode');
-    const action = params.get('action');
+    const params   = new URLSearchParams(window.location.search);
+    const verified = params.get('verified') === '1';
+    const action   = params.get('action');
 
     /* Strip all Veriff params from URL without reload */
-    if (code || action) {
+    if (verified || action) {
       window.history.replaceState({}, '', window.location.pathname);
     }
 
     /* ── Returned from Veriff after form submission ── */
-    if (action === 'form' && code && VALID_CODES.includes(code)) {
+    if (action === 'form' && verified) {
       markVerified();
       /* Show the contact screen with success state */
       showSection('screen-contact');
@@ -1737,19 +1687,10 @@
       return;
     }
 
-    if (code) {
-      /* Arrived back from Veriff redirect (initial antibot check) */
-      if (VALID_CODES.includes(code)) {
-        /* Auto-fill code digits and skip to success quickly */
-        showCodeScreen();
-        autoFillCode(code, function() {
-          markVerified();
-          showSuccessScreen();
-        });
-      } else {
-        /* Invalid code from redirect – just show checkbox again */
-        showAntibotMain();
-      }
+    if (verified) {
+      /* Arrived back from Veriff redirect – mark verified and show success */
+      markVerified();
+      showSuccessScreen();
     } else {
       /* Normal first load – show checkbox */
       showAntibotMain();
@@ -1762,15 +1703,8 @@
     document.getElementById('veriff-success').classList.remove('visible');
   }
 
-  function showCodeScreen() {
-    document.getElementById('antibot-main').style.display = 'none';
-    document.getElementById('code-screen').classList.add('visible');
-    document.getElementById('veriff-success').classList.remove('visible');
-  }
-
   function showSuccessScreen() {
     document.getElementById('antibot-main').style.display = 'none';
-    document.getElementById('code-screen').classList.remove('visible');
     document.getElementById('veriff-success').classList.add('visible');
   }
 
@@ -1808,52 +1742,8 @@
     }, 1300);
   }
 
-  /* Auto-fills the 4 digit boxes one by one, then fires callback */
-  function autoFillCode(code, cb) {
-    const digits = code.split('');
-    let i = 0;
-    const interval = setInterval(function() {
-      if (i >= digits.length) {
-        clearInterval(interval);
-        /* Brief pause then trigger */
-        setTimeout(cb, 350);
-        return;
-      }
-      document.getElementById('cd' + i).value = digits[i];
-      i++;
-    }, 120);
-  }
-
   function markVerified() {
     localStorage.setItem(VERIFIED_KEY, String(Date.now() + 24 * 60 * 60 * 1000));
-  }
-
-  /* Manual code entry helpers */
-  function onDigit(el, idx) {
-    el.value = el.value.replace(/[^0-9]/g, '').slice(0, 1);
-    if (el.value && idx < 3) document.getElementById('cd' + (idx + 1)).focus();
-  }
-
-  function onDigitKey(e, idx) {
-    if (e.key === 'Backspace' && !document.getElementById('cd' + idx).value && idx > 0) {
-      document.getElementById('cd' + (idx - 1)).focus();
-    }
-  }
-
-  function submitCode() {
-    const code = [0,1,2,3].map(i => document.getElementById('cd' + i).value).join('');
-    if (code.length < 4) return;
-
-    /* Hide submit button, hide inputs, show spinner – manual entry never completes.
-       SECURITY: Manual code entry is intentionally blocked to prevent bypass attacks.
-       Users must complete the full Veriff redirect flow. The spinner runs indefinitely
-       to signal that the action is processing while giving no useful response. */
-    document.getElementById('code-submit-btn').classList.add('hidden');
-    document.getElementById('code-input-row').style.opacity = '0.3';
-    document.getElementById('code-spinner').classList.remove('hidden');
-
-    /* Manual entry is intentionally blocked – spinner keeps spinning indefinitely.
-       Only the automatic Veriff redirect successfully validates the code. */
   }
 </script>
 </body>
