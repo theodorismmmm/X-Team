@@ -541,7 +541,7 @@
         radial-gradient(ellipse at 60% 80%, rgba(13,27,42,.06) 0%, transparent 50%),
         linear-gradient(160deg, #e8ecf3 0%, #f0f2f5 45%, #e9edf5 100%);
       min-height: calc(100vh - 62px);
-      display: flex; align-items: center; justify-content: center;
+      padding-bottom: 80px;
     }
 
     /* ── Typewriter ──────────────────────────────────────────────────── */
@@ -572,6 +572,148 @@
       50%       { opacity: 0; }
     }
 
+
+    /* ── Landing long-scroll sections ────────────────────────────────── */
+    .landing-flow { width: 100%; }
+    .landing-block {
+      max-width: 1100px;
+      margin: 0 auto 34px;
+      padding: 42px 28px;
+      background: rgba(255,255,255,.86);
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(2px);
+    }
+    .landing-block h2 {
+      font-size: 1.85rem;
+      color: var(--dark);
+      margin-bottom: 10px;
+    }
+    .landing-block > p {
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+    .ads-layout {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .slider-group { display: flex; flex-direction: column; gap: 18px; }
+    .slider-card {
+      background: #fff;
+      border: 1px solid var(--border-light);
+      padding: 16px;
+      box-shadow: var(--shadow-xs);
+    }
+    .slider-card label {
+      display: flex;
+      justify-content: space-between;
+      font-size: .82rem;
+      font-weight: 800;
+      color: var(--dark);
+      margin-bottom: 9px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .slider-card input[type="range"] { width: 100%; accent-color: var(--accent); }
+    .slider-note { margin-top: 8px; color: var(--muted); font-size: .83rem; }
+    .ads-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .ads-stat {
+      background: var(--accent-light);
+      border: 1px solid var(--accent-border);
+      padding: 10px;
+      font-size: .8rem;
+      color: var(--muted);
+    }
+    .ads-stat strong { display: block; color: var(--dark); font-size: 1.05rem; margin-top: 4px; }
+    .ads-charts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .chart-card {
+      background: #fff;
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-xs);
+      padding: 12px;
+    }
+    .chart-card h4 { font-size: .84rem; margin-bottom: 10px; color: var(--dark); }
+    .bar-chart {
+      height: 150px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 22px;
+      padding: 8px;
+      background: linear-gradient(to top, #eef2ff 0%, #fff 72%);
+      border: 1px solid var(--border-light);
+    }
+    .bar-wrap { text-align: center; width: 68px; }
+    .bar {
+      width: 100%;
+      min-height: 12px;
+      background: var(--accent);
+      transition: height .45s ease;
+    }
+    .bar.alt { background: #38bdf8; }
+    .bar-label { margin-top: 8px; font-size: .74rem; color: var(--muted); font-weight: 700; }
+    .bar-value { font-size: .75rem; color: var(--dark); font-weight: 800; margin-top: 4px; }
+    .security-grid,
+    .benefit-grid,
+    .reasons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+      gap: 14px;
+    }
+    .landing-info-card {
+      background: #fff;
+      border: 1px solid var(--border-light);
+      padding: 16px;
+      box-shadow: var(--shadow-xs);
+    }
+    .landing-info-card h3 { font-size: 1rem; color: var(--dark); margin-bottom: 8px; }
+    .landing-info-card p { color: var(--muted); font-size: .9rem; line-height: 1.55; }
+    .landing-cta {
+      display: flex;
+      justify-content: center;
+      margin-top: 28px;
+    }
+    .landing-legal {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 20px 30px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      border-top: 1px solid var(--border-light);
+      color: var(--muted);
+      font-size: .83rem;
+    }
+    .landing-legal a {
+      color: var(--muted);
+      text-decoration: none;
+      transition: color var(--trans);
+      font-weight: 600;
+    }
+    .landing-legal a:hover { color: var(--accent); }
+    .reveal-on-scroll {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity .75s ease, transform .75s ease;
+    }
+    .reveal-on-scroll.reveal-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
     /* ── Responsive ──────────────────────────────────────────────────── */
     @media (max-width: 900px) {
       .contact-grid { grid-template-columns: 1fr; }
@@ -589,6 +731,11 @@
       .sum-total { padding: 16px 18px; }
       .cf-card, .cs-card { padding: 24px 18px; }
       .features-row { gap: 18px; }
+      .landing-block { margin: 0 12px 24px; padding: 24px 16px; }
+      .ads-layout { grid-template-columns: 1fr; }
+      .ads-charts, .ads-stats { grid-template-columns: 1fr; }
+      .typewriter-wrap { flex-direction: column; gap: 6px; }
+      .typewriter-prefix, .typewriter-text { font-size: 1rem; }
     }
 
     /* ── Anti-Bot / Veriff overlay ───────────────────────────────────── */
@@ -856,23 +1003,133 @@
 
 <!-- ═══════════════ SCREEN: START ═══════════════ -->
 <div id="screen-start">
-  <div class="hero-section fade-in">
-    <div class="hero-tag">Webdesign &amp; Entwicklung</div>
-    <h1>Professionelle Websites<br>von <span>X-Team</span></h1>
-    <div class="typewriter-wrap">
-      <span class="typewriter-prefix">Wir sind</span>
-      <span class="typewriter-text" id="tw-text"></span><span class="typewriter-cursor" id="tw-cursor"></span>
-    </div>
-    <p>Maßgeschneiderte Webseiten für Unternehmen, Restaurants, Shops und mehr –<br>
-       transparent konfiguriert, professionell umgesetzt.</p>
-    <div class="features-row">
-      <div class="feat-item"><span>✓</span> Individuelle Lösungen</div>
-      <div class="feat-item"><span>✓</span> Transparente Preise</div>
-      <div class="feat-item"><span>✓</span> Schnelle Umsetzung</div>
-    </div>
-    <button class="btn btn-primary btn-lg" onclick="startConfig()">
-      Jetzt konfigurieren →
-    </button>
+  <div class="landing-flow">
+    <section class="hero-section fade-in reveal-on-scroll reveal-visible">
+      <div class="hero-tag">Webdesign &amp; Entwicklung</div>
+      <h1>Professionelle Websites<br>von <span>X-Team</span></h1>
+      <div class="typewriter-wrap">
+        <span class="typewriter-prefix">Wir sind</span>
+        <span class="typewriter-text" id="tw-text"></span><span class="typewriter-cursor" id="tw-cursor"></span>
+      </div>
+      <p>Scrolle runter und sieh, wie Werbung, Sicherheit und starke Funktionen deine Website wachsen lassen.</p>
+      <div class="features-row">
+        <div class="feat-item"><span>✓</span> Professionelles Design</div>
+        <div class="feat-item"><span>✓</span> Mehr Besucher</div>
+        <div class="feat-item"><span>✓</span> Sichere Infrastruktur</div>
+      </div>
+      <a class="btn btn-primary btn-lg" href="#ads-section">Mehr entdecken ↓</a>
+    </section>
+
+    <section class="landing-block reveal-on-scroll" id="ads-section">
+      <h2>Warum Ads funktionieren</h2>
+      <p>Stelle Budget und Besucherzahl ein – beide Regler sind dynamisch miteinander verbunden und zeigen dein monatliches Potenzial.</p>
+      <div class="ads-layout">
+        <div class="slider-group">
+          <div class="slider-card">
+            <label for="ads-budget">Preis pro Monat <strong id="ads-budget-value">1.800 €</strong></label>
+            <input type="range" id="ads-budget" min="250" max="12000" step="50" value="1800" />
+          </div>
+          <div class="slider-card">
+            <label for="ads-visitors">Besucher pro Monat <strong id="ads-visitors-value">18.000</strong></label>
+            <input type="range" id="ads-visitors" min="1500" max="120000" step="100" value="18000" />
+            <div class="slider-note">Je höher das Budget, desto mehr planbarer Traffic und Anfragen.</div>
+            <div class="ads-stats">
+              <div class="ads-stat">Kosten pro 1.000 Besucher<strong id="ads-cpm">100 €</strong></div>
+              <div class="ads-stat">Mögliche Leads / Monat<strong id="ads-leads">360</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ads-charts">
+          <div class="chart-card">
+            <h4>Diagramm 1: Besucher ohne Werbung</h4>
+            <div class="bar-chart">
+              <div class="bar-wrap">
+                <div class="bar" id="chart-without-bar" style="height:38%"></div>
+                <div class="bar-label">Ohne Ads</div>
+                <div class="bar-value" id="chart-without-value">8.100</div>
+              </div>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h4>Diagramm 2: Besucher mit Werbung</h4>
+            <div class="bar-chart">
+              <div class="bar-wrap">
+                <div class="bar alt" id="chart-with-bar" style="height:74%"></div>
+                <div class="bar-label">Mit Ads</div>
+                <div class="bar-value" id="chart-with-value">28.800</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-block reveal-on-scroll" id="security-section">
+      <h2>DDoS- und SSL-Schutz für deine Website</h2>
+      <p>Wir schützen deine Seite auf mehreren Ebenen, damit sie schnell, erreichbar und vertrauenswürdig bleibt.</p>
+      <div class="security-grid">
+        <article class="landing-info-card">
+          <h3>🛡️ DDoS-Abwehr</h3>
+          <p>Filtert schädlichen Traffic automatisch und hält deine Seite auch bei Angriffen stabil online.</p>
+        </article>
+        <article class="landing-info-card">
+          <h3>🔒 SSL-Verschlüsselung</h3>
+          <p>Schützt Formulare, Buchungen und Zahlungsdaten mit sicherer HTTPS-Verbindung.</p>
+        </article>
+        <article class="landing-info-card">
+          <h3>⚡ Performance &amp; Vertrauen</h3>
+          <p>Sicherheit und Ladezeit verbessern Nutzererlebnis, Google-Ranking und Conversion.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="landing-block reveal-on-scroll" id="benefits-section">
+      <h2>Vorteile einer professionellen Website</h2>
+      <div class="benefit-grid">
+        <article class="landing-info-card">
+          <h3>📅 Einfache Buchungen</h3>
+          <p>Kunden buchen Termine direkt online – ohne unnötige Rückfragen.</p>
+        </article>
+        <article class="landing-info-card">
+          <h3>🍽️ Reservierung &amp; Menükarten</h3>
+          <p>Reservierungen verwalten und Menükarten online bereitstellen – perfekt für Gastronomie.</p>
+        </article>
+        <article class="landing-info-card">
+          <h3>🛒 Einfacher verkaufen</h3>
+          <p>Produkte und Services klar präsentieren und direkt online verkaufen.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="landing-block reveal-on-scroll" id="why-us-section">
+      <h2>Warum Kunden unseren Service nutzen</h2>
+      <div class="reasons-grid">
+        <article class="landing-info-card">
+          <h3>Individuell statt Baukasten</h3>
+          <p>Wir bauen Seiten passend zu deinem Business und deinen Prozessen.</p>
+        </article>
+        <article class="landing-info-card">
+          <h3>Direkter Support</h3>
+          <p>Klare Kommunikation, schnelle Umsetzung und feste Ansprechpartner.</p>
+        </article>
+        <article class="landing-info-card">
+          <h3>Wachstum im Fokus</h3>
+          <p>Design, SEO, Ads und Technik greifen zusammen für messbare Ergebnisse.</p>
+        </article>
+      </div>
+      <div class="landing-cta">
+        <button class="btn btn-primary btn-lg" onclick="startConfig()">Jetzt konfigurieren →</button>
+      </div>
+    </section>
+
+    <footer class="landing-legal reveal-on-scroll" id="legal">
+      <a href="kontakt.html">AGBs</a>
+      <a href="kontakt.html">Nutzerbedingungen</a>
+      <a href="kontakt.html">Richtlinien</a>
+      <a href="payment.html">Bezahlrichtlinie</a>
+      <a href="kontakt.html">Impressum</a>
+    </footer>
   </div>
 </div>
 
@@ -1834,6 +2091,89 @@
     setTimeout(tick, 600);
   })();
 
+
+  /* ── Landing sliders + charts + reveal ───────────────────────────── */
+  const ADS_BUDGET_MIN = 250;
+  const ADS_BUDGET_MAX = 12000;
+  const ADS_VISITOR_MIN = 1500;
+  const ADS_VISITOR_MAX = 120000;
+
+  function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
+  function fmtInt(n) { return Number(n).toLocaleString('de-DE'); }
+
+  function budgetToVisitors(budget) {
+    const ratio = (budget - ADS_BUDGET_MIN) / (ADS_BUDGET_MAX - ADS_BUDGET_MIN);
+    return Math.round(ADS_VISITOR_MIN + ratio * (ADS_VISITOR_MAX - ADS_VISITOR_MIN));
+  }
+  function visitorsToBudget(visitors) {
+    const ratio = (visitors - ADS_VISITOR_MIN) / (ADS_VISITOR_MAX - ADS_VISITOR_MIN);
+    return Math.round(ADS_BUDGET_MIN + ratio * (ADS_BUDGET_MAX - ADS_BUDGET_MIN));
+  }
+
+  function renderAdsStats(budget, visitors) {
+    const cpm = visitors > 0 ? (budget / visitors) * 1000 : 0;
+    const leads = Math.max(1, Math.round(visitors * 0.02));
+    const withoutAds = Math.round(visitors * 0.45);
+    const withAds = Math.round(visitors * 1.6);
+    const maxV = Math.max(withAds, 1);
+
+    document.getElementById('ads-budget-value').textContent = fmtInt(budget) + ' €';
+    document.getElementById('ads-visitors-value').textContent = fmtInt(visitors);
+    document.getElementById('ads-cpm').textContent = fmtInt(cpm.toFixed(0)) + ' €';
+    document.getElementById('ads-leads').textContent = fmtInt(leads);
+
+    document.getElementById('chart-without-value').textContent = fmtInt(withoutAds);
+    document.getElementById('chart-with-value').textContent = fmtInt(withAds);
+    document.getElementById('chart-without-bar').style.height = clamp((withoutAds / maxV) * 100, 12, 100) + '%';
+    document.getElementById('chart-with-bar').style.height = clamp((withAds / maxV) * 100, 12, 100) + '%';
+  }
+
+  function initLandingAds() {
+    const budgetInput = document.getElementById('ads-budget');
+    const visitorInput = document.getElementById('ads-visitors');
+    if (!budgetInput || !visitorInput) return;
+
+    budgetInput.addEventListener('input', () => {
+      const budget = Number(budgetInput.value);
+      const visitors = clamp(budgetToVisitors(budget), ADS_VISITOR_MIN, ADS_VISITOR_MAX);
+      visitorInput.value = visitors;
+      renderAdsStats(budget, visitors);
+    });
+
+    visitorInput.addEventListener('input', () => {
+      const visitors = Number(visitorInput.value);
+      const budget = clamp(visitorsToBudget(visitors), ADS_BUDGET_MIN, ADS_BUDGET_MAX);
+      budgetInput.value = budget;
+      renderAdsStats(budget, visitors);
+    });
+
+    renderAdsStats(Number(budgetInput.value), Number(visitorInput.value));
+  }
+
+  function initScrollReveal() {
+    const nodes = document.querySelectorAll('.reveal-on-scroll');
+    if (!nodes.length) return;
+
+    if (!('IntersectionObserver' in window)) {
+      nodes.forEach(n => n.classList.add('reveal-visible'));
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('reveal-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.18 });
+
+    nodes.forEach(node => {
+      if (!node.classList.contains('reveal-visible')) observer.observe(node);
+    });
+  }
+
+
   /* ── Boot ─────────────────────────────────────────────────────────── */
   // Render feature tag buttons
   (function initFeatTags() {
@@ -1844,6 +2184,8 @@
     ).join('');
   })();
 
+  initLandingAds();
+  initScrollReveal();
   showSection('screen-start');
 
   /* ═══════════════ ANTI-BOT / VERIFF INTEGRATION ═══════════════════ */
@@ -1894,7 +2236,8 @@
 
   function showAntibotMain() {
     document.getElementById('antibot-main').style.display = '';
-    document.getElementById('code-screen').classList.remove('visible');
+    const codeScreen = document.getElementById('code-screen');
+    if (codeScreen) codeScreen.classList.remove('visible');
     document.getElementById('veriff-success').classList.remove('visible');
   }
 
