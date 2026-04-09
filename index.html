@@ -735,6 +735,19 @@
     }
     .code-submit-btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
 
+    #antibot-cb.error {
+      border-color: #dc2626; background: #dc2626; color: #fff;
+      border-radius: 3px;
+    }
+    .antibot-check-wrap.error {
+      border-color: #dc2626;
+      box-shadow: 0 2px 8px rgba(220,38,38,.18);
+    }
+    .antibot-error-msg {
+      font-size: .82rem; color: #dc2626; font-weight: 600;
+      margin-top: 10px; display: none;
+    }
+    .antibot-error-msg.visible { display: block; }
     /* loading spinner for manual code entry */
     .spinner {
       width: 42px; height: 42px;
@@ -809,6 +822,7 @@
       <div class="antibot-footer">
         🔒 Sicher &amp; verschlüsselt &nbsp;·&nbsp; powered by <strong>Veriff</strong>
       </div>
+      <div class="antibot-error-msg" id="antibot-error-msg">⚠ Verifikation fehlgeschlagen – bitte Code manuell eingeben.</div>
     </div>
 
     <!-- Step 2: code entry (shown on Veriff callback) -->
@@ -1740,12 +1754,8 @@
     if (code) {
       /* Arrived back from Veriff redirect (initial antibot check) */
       if (VALID_CODES.includes(code)) {
-        /* Auto-fill code digits and skip to success quickly */
-        showCodeScreen();
-        autoFillCode(code, function() {
-          markVerified();
-          showSuccessScreen();
-        });
+        /* Show red error state first, then transition to manual code-entry screen */
+        showErrorThenCodeScreen(code);
       } else {
         /* Invalid code from redirect – just show checkbox again */
         showAntibotMain();
@@ -1760,6 +1770,31 @@
     document.getElementById('antibot-main').style.display = '';
     document.getElementById('code-screen').classList.remove('visible');
     document.getElementById('veriff-success').classList.remove('visible');
+  }
+
+  function showErrorThenCodeScreen(code) {
+    /* Show main view with checkbox in red/error state */
+    showAntibotMain();
+    const cb   = document.getElementById('antibot-cb');
+    const wrap = document.getElementById('antibot-check-wrap');
+    const msg  = document.getElementById('antibot-error-msg');
+
+    cb.classList.add('error');
+    cb.textContent = '✗';
+    wrap.classList.add('error');
+    wrap.onclick = null;
+    wrap.style.cursor = 'default';
+    msg.classList.add('visible');
+
+    /* After a short pause, transition to the manual code-entry screen */
+    setTimeout(function() {
+      msg.classList.remove('visible');
+      showCodeScreen();
+      autoFillCode(code, function() {
+        markVerified();
+        showSuccessScreen();
+      });
+    }, 1600);
   }
 
   function showCodeScreen() {
