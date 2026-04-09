@@ -1017,7 +1017,7 @@
         <div class="feat-item"><span>✓</span> Mehr Besucher</div>
         <div class="feat-item"><span>✓</span> Sichere Infrastruktur</div>
       </div>
-      <a class="btn btn-primary btn-lg" href="#ads-section">Mehr entdecken ↓</a>
+      <button class="btn btn-primary btn-lg" type="button" onclick="scrollToAds()">Mehr entdecken ↓</button>
     </section>
 
     <section class="landing-block reveal-on-scroll" id="ads-section">
@@ -1124,11 +1124,11 @@
     </section>
 
     <footer class="landing-legal reveal-on-scroll" id="legal">
-      <a href="kontakt.html">AGBs</a>
-      <a href="kontakt.html">Nutzerbedingungen</a>
-      <a href="kontakt.html">Richtlinien</a>
-      <a href="payment.html">Bezahlrichtlinie</a>
-      <a href="kontakt.html">Impressum</a>
+      <a href="agbs.html">AGBs</a>
+      <a href="nutzerbedingungen.html">Nutzerbedingungen</a>
+      <a href="richtlinien.html">Richtlinien</a>
+      <a href="bezahlrichtlinie.html">Bezahlrichtlinie</a>
+      <a href="impressum.html">Impressum</a>
     </footer>
   </div>
 </div>
@@ -2097,6 +2097,9 @@
   const ADS_BUDGET_MAX = 12000;
   const ADS_VISITOR_MIN = 1500;
   const ADS_VISITOR_MAX = 120000;
+  const ADS_LEAD_CONVERSION_RATE = 0.02;
+  const ADS_BASELINE_VISITOR_SHARE = 0.45;
+  const ADS_CAMPAIGN_VISITOR_FACTOR = 1.6;
 
   function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
   function fmtInt(n) { return Number(n).toLocaleString('de-DE'); }
@@ -2112,9 +2115,9 @@
 
   function renderAdsStats(budget, visitors) {
     const cpm = visitors > 0 ? (budget / visitors) * 1000 : 0;
-    const leads = Math.max(1, Math.round(visitors * 0.02));
-    const withoutAds = Math.round(visitors * 0.45);
-    const withAds = Math.round(visitors * 1.6);
+    const leads = Math.max(1, Math.round(visitors * ADS_LEAD_CONVERSION_RATE));
+    const withoutAds = Math.round(visitors * ADS_BASELINE_VISITOR_SHARE);
+    const withAds = Math.round(visitors * ADS_CAMPAIGN_VISITOR_FACTOR);
     const maxV = Math.max(withAds, 1);
 
     document.getElementById('ads-budget-value').textContent = fmtInt(budget) + ' €';
@@ -2166,11 +2169,16 @@
           observer.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.18 });
+    }, { threshold: 0.2 });
 
     nodes.forEach(node => {
       if (!node.classList.contains('reveal-visible')) observer.observe(node);
     });
+  }
+
+  function scrollToAds() {
+    const adsSection = document.getElementById('ads-section');
+    if (adsSection) adsSection.scrollIntoView({ behavior: 'smooth' });
   }
 
 
