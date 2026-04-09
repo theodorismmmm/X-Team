@@ -742,6 +742,44 @@
       cursor: pointer; transition: background .2s, transform .15s;
     }
     .vs-close-btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
+
+    /* ── Feature tag buttons ─────────────────────────────────────────── */
+    .feat-tags { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+    .feat-tag {
+      padding: 9px 18px; border: 2px solid var(--border);
+      border-radius: 100px; cursor: pointer; font-size: .88rem;
+      font-weight: 600; color: var(--muted); background: var(--white);
+      transition: border-color var(--trans), background var(--trans), color var(--trans);
+      user-select: none;
+    }
+    .feat-tag:hover { border-color: var(--accent); color: var(--accent); }
+    .feat-tag.on {
+      border-color: var(--accent); background: var(--accent-light); color: var(--accent);
+    }
+    .feat-count-line {
+      margin-top: 16px; font-size: .84rem; color: var(--muted); font-weight: 500;
+    }
+    .feat-count-line strong { color: var(--accent); font-weight: 800; }
+
+    /* ── Billing period tabs ─────────────────────────────────────────── */
+    .bill-tabs {
+      display: flex; border: 2px solid var(--border); overflow: hidden; margin-bottom: 24px;
+    }
+    .bill-tab {
+      flex: 1; padding: 13px 8px; text-align: center; cursor: pointer;
+      font-size: .88rem; font-weight: 700; color: var(--muted);
+      background: var(--white); border-right: 1px solid var(--border);
+      transition: background var(--trans), color var(--trans); line-height: 1.3;
+    }
+    .bill-tab:last-child { border-right: none; }
+    .bill-tab.active { background: var(--accent); color: #fff; }
+    .bill-tab .tab-discount {
+      display: block; font-size: .68rem; font-weight: 600; margin-top: 2px; opacity: .7;
+    }
+    .bill-tab.active .tab-discount { opacity: 1; }
+    @media (max-width: 480px) {
+      .bill-tab { font-size: .78rem; padding: 10px 4px; }
+    }
   </style>
 </head>
 <body>
@@ -804,13 +842,15 @@
     <div class="p-line" id="pln1"></div>
     <div class="p-step"><div class="p-num" id="pn2">2</div><div class="p-label" id="pl2">Paket</div></div>
     <div class="p-line" id="pln2"></div>
-    <div class="p-step"><div class="p-num" id="pn3">3</div><div class="p-label" id="pl3">Hosting</div></div>
+    <div class="p-step"><div class="p-num" id="pn3">3</div><div class="p-label" id="pl3">Funktionen</div></div>
     <div class="p-line" id="pln3"></div>
-    <div class="p-step"><div class="p-num" id="pn4">4</div><div class="p-label" id="pl4">Add-ons</div></div>
+    <div class="p-step"><div class="p-num" id="pn4">4</div><div class="p-label" id="pl4">Hosting</div></div>
     <div class="p-line" id="pln4"></div>
-    <div class="p-step"><div class="p-num" id="pn5">5</div><div class="p-label" id="pl5">Übersicht</div></div>
+    <div class="p-step"><div class="p-num" id="pn5">5</div><div class="p-label" id="pl5">Add-ons</div></div>
     <div class="p-line" id="pln5"></div>
-    <div class="p-step"><div class="p-num" id="pn6">6</div><div class="p-label" id="pl6">Anfrage</div></div>
+    <div class="p-step"><div class="p-num" id="pn6">6</div><div class="p-label" id="pl6">Übersicht</div></div>
+    <div class="p-line" id="pln6"></div>
+    <div class="p-step"><div class="p-num" id="pn7">7</div><div class="p-label" id="pl7">Anfrage</div></div>
   </div>
 </div>
 
@@ -943,7 +983,27 @@
       </div>
       <div class="nav-btns">
         <button class="btn btn-secondary" onclick="showSection('screen-domain')">← Zurück</button>
-        <button class="btn btn-primary" id="btn-pkg-next" onclick="gotoHosting()" style="display:none;">
+        <button class="btn btn-primary" id="btn-pkg-next" onclick="gotoFeatures()" style="display:none;">
+          Weiter zu Funktionen →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN 3: FUNKTIONEN ═══════════════ -->
+<div id="screen-features" class="hidden">
+  <div class="section">
+    <div class="fade-in">
+      <div class="page-hd">
+        <h2>Welche Funktionen möchtest du?</h2>
+        <p>Wähle alle Funktionen, die deine Website haben soll – du kannst so viele auswählen wie du möchtest.</p>
+      </div>
+      <div class="feat-tags" id="feat-tag-container"><!-- rendered by JS --></div>
+      <p class="feat-count-line"><strong id="feat-count">0</strong> Funktion(en) ausgewählt</p>
+      <div class="nav-btns">
+        <button class="btn btn-secondary" onclick="showSection('screen-package')">← Zurück</button>
+        <button class="btn btn-primary" onclick="gotoHosting()">
           Weiter zu Hosting →
         </button>
       </div>
@@ -951,7 +1011,7 @@
   </div>
 </div>
 
-<!-- ═══════════════ SCREEN 3: HOSTING ═══════════════ -->
+<!-- ═══════════════ SCREEN 4: HOSTING ═══════════════ -->
 <div id="screen-hosting" class="hidden">
   <div class="section">
     <div class="fade-in">
@@ -1086,7 +1146,7 @@
       </div>
 
       <div class="nav-btns">
-        <button class="btn btn-secondary" onclick="showSection('screen-package')">← Zurück</button>
+        <button class="btn btn-secondary" onclick="showSection('screen-features')">← Zurück</button>
         <button class="btn btn-primary" id="btn-host-next" onclick="gotoAddons()" style="display:none;">
           Weiter zu Add-ons →
         </button>
@@ -1190,24 +1250,44 @@
   </div>
 </div>
 
-<!-- ═══════════════ SCREEN 5: ZUSAMMENFASSUNG ═══════════════ -->
+<!-- ═══════════════ SCREEN 6: ZUSAMMENFASSUNG ═══════════════ -->
 <div id="screen-summary" class="hidden">
   <div class="section">
     <div class="fade-in">
       <div class="page-hd">
         <h2>Deine Konfiguration &amp; Preise</h2>
-        <p>Hier ist eine vollständige Übersicht deiner Auswahl und der kalkulierten Kosten.</p>
+        <p>Wähle deine Laufzeit und sieh alle Kosten auf einen Blick.</p>
       </div>
+
+      <!-- Billing period tabs -->
+      <div style="margin-bottom:8px;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);">
+        Laufzeit wählen
+      </div>
+      <div class="bill-tabs">
+        <div class="bill-tab active" id="bill-tab-1" onclick="setBillPeriod(1)">
+          1 Monat<span class="tab-discount">Standardpreis</span>
+        </div>
+        <div class="bill-tab" id="bill-tab-3" onclick="setBillPeriod(3)">
+          3 Monate<span class="tab-discount">5% Rabatt</span>
+        </div>
+        <div class="bill-tab" id="bill-tab-6" onclick="setBillPeriod(6)">
+          6 Monate<span class="tab-discount">10% Rabatt</span>
+        </div>
+        <div class="bill-tab" id="bill-tab-12" onclick="setBillPeriod(12)">
+          12 Monate<span class="tab-discount">20% Rabatt</span>
+        </div>
+      </div>
+
       <div class="sum-box">
         <div id="sum-content"><!-- filled by JS --></div>
         <div class="sum-total">
-          <div class="tl">Geschätzter Gesamtpreis / Monat (Richtwert)</div>
+          <div class="tl" id="sum-grand-label">Gesamtkosten (Richtwert)</div>
           <div class="tp" id="sum-grand">–</div>
         </div>
       </div>
       <p class="note-text">
         * Alle Preise sind Richtwerte. Der finale Preis wird individuell nach einem Beratungsgespräch festgelegt.<br>
-        * Das Website-Paket ist ein einmaliger Entwicklungspreis. Hosting wird alle 3 Monate abgerechnet.<br>
+        * Die Einmalige Gebühr deckt die Website-Entwicklung ab. Laufende Kosten beinhalten Hosting, Domain und Add-ons.<br>
         * Domain-Preis ist eine Schätzung basierend auf der eingegebenen Domain-Endung.
       </p>
       <div class="nav-btns">
@@ -1220,7 +1300,7 @@
   </div>
 </div>
 
-<!-- ═══════════════ SCREEN 6: KONTAKT ═══════════════ -->
+<!-- ═══════════════ SCREEN 7: KONTAKT ═══════════════ -->
 <div id="screen-contact" class="hidden">
   <div class="section">
     <div class="fade-in">
@@ -1300,6 +1380,32 @@
   const KI_PRICES = { 1: 19.99, 2: 39.99, 3: 79.99 };  // per month
   const SSL_YEAR  = 120;
 
+  const FEATURES = [
+    { key: 'kontaktformular', label: '📬 Kontaktformular' },
+    { key: 'onlineshop',      label: '🛒 Online-Shop' },
+    { key: 'blog',            label: '📝 Blog / News' },
+    { key: 'mehrsprachig',    label: '🌍 Mehrsprachigkeit' },
+    { key: 'newsletter',      label: '📨 Newsletter' },
+    { key: 'googlemaps',      label: '📍 Google Maps' },
+    { key: 'livechat',        label: '💬 Live-Chat' },
+    { key: 'portfolio',       label: '🖼️ Portfolio / Galerie' },
+    { key: 'buchung',         label: '📅 Buchungssystem' },
+    { key: 'faq',             label: '❓ FAQ-Bereich' },
+    { key: 'bewertungen',     label: '⭐ Kundenbewertungen' },
+    { key: 'socialmedia',     label: '📱 Social Media Feed' },
+    { key: 'datenschutz',     label: '🔐 Cookie-Banner / DSGVO' },
+    { key: 'adminpanel',      label: '⚙️ Admin-Panel' },
+    { key: 'login',           label: '🔑 Login / Mitgliederbereich' },
+    { key: 'suche',           label: '🔍 Suchfunktion' },
+    { key: 'darkmode',        label: '🌙 Dark Mode' },
+    { key: 'video',           label: '🎥 Video-Integration' },
+    { key: 'preistabelle',    label: '💰 Preistabelle' },
+    { key: 'kalender',        label: '📆 Kalender' },
+  ];
+
+  const BILL_MONTHS   = [1, 3, 6, 12];
+  const BILL_DISCOUNT = { 1: 0, 3: 0.05, 6: 0.10, 12: 0.20 };
+
   const DOMAIN_TLD_PRICES = {
     de: 10, com: 14, net: 12, org: 12, info: 8,
     shop: 24, online: 20, io: 40, eu: 9, at: 12, ch: 18, co: 16
@@ -1308,17 +1414,19 @@
   /* ── State ────────────────────────────────────────────────────────── */
   const S = {
     domain: '', pkgId: null, hostId: null,
-    ssl: false, ki: false, kiTier: null
+    ssl: false, ki: false, kiTier: null,
+    features: [],    // selected feature keys
+    billMonths: 1,   // billing period
   };
 
   /* ── Screen Management ────────────────────────────────────────────── */
   const SCREENS = [
-    'screen-start','screen-domain','screen-package',
+    'screen-start','screen-domain','screen-package','screen-features',
     'screen-hosting','screen-addons','screen-summary','screen-contact'
   ];
   const STEP_MAP = {
-    'screen-domain': 1, 'screen-package': 2, 'screen-hosting': 3,
-    'screen-addons': 4, 'screen-summary': 5, 'screen-contact': 6
+    'screen-domain': 1, 'screen-package': 2, 'screen-features': 3,
+    'screen-hosting': 4, 'screen-addons': 5, 'screen-summary': 6, 'screen-contact': 7
   };
 
   function showSection(id) {
@@ -1334,27 +1442,34 @@
     const step = STEP_MAP[id];
     if (!step) { wrap.classList.add('hidden'); return; }
     wrap.classList.remove('hidden');
-    for (let i = 1; i <= 6; i++) {
+    for (let i = 1; i <= 7; i++) {
       const n = document.getElementById('pn' + i);
       const l = document.getElementById('pl' + i);
       n.classList.remove('active','done');
       l.classList.remove('active','done');
       if (i < step)        { n.classList.add('done');   l.classList.add('done'); }
       else if (i === step) { n.classList.add('active');  l.classList.add('active'); }
-      if (i < 6) document.getElementById('pln' + i).classList.toggle('done', i < step);
+      if (i < 7) document.getElementById('pln' + i).classList.toggle('done', i < step);
     }
   }
 
   /* ── Reset / Home ─────────────────────────────────────────────────── */
   function goHome() {
-    Object.assign(S, { domain:'', pkgId:null, hostId:null, ssl:false, ki:false, kiTier:null });
+    Object.assign(S, { domain:'', pkgId:null, hostId:null, ssl:false, ki:false, kiTier:null, features:[], billMonths:1 });
 
     document.querySelectorAll('.opt-card.selected').forEach(c => c.classList.remove('selected'));
     document.querySelectorAll('.check-box').forEach(c => { c.textContent = ''; });
     document.querySelectorAll('.ki-tier.sel').forEach(c => c.classList.remove('sel'));
     document.querySelectorAll('input[type=checkbox]').forEach(c => { c.checked = false; });
+    document.querySelectorAll('.feat-tag.on').forEach(t => t.classList.remove('on'));
     ['ab-ssl','ab-ki'].forEach(id => document.getElementById(id).classList.add('hidden'));
     ['ac-ssl','ac-ki'].forEach(id => document.getElementById(id).classList.remove('on'));
+    const fc = document.getElementById('feat-count');
+    if (fc) fc.textContent = '0';
+    BILL_MONTHS.forEach(m => {
+      const t = document.getElementById('bill-tab-' + m);
+      if (t) t.classList.toggle('active', m === 1);
+    });
 
     document.getElementById('domain-input').value = '';
     document.getElementById('btn-domain-next').style.display = 'none';
@@ -1394,12 +1509,35 @@
     document.getElementById('btn-pkg-next').style.display = 'inline-flex';
     updateBar();
   }
-  function gotoHosting() {
+  function gotoFeatures() {
     if (!S.pkgId) return;
+    showSection('screen-features');
+  }
+
+  /* ── Step 3: Funktionen ──────────────────────────────────────────── */
+  function selectFeat(key) {
+    const idx = S.features.indexOf(key);
+    if (idx === -1) S.features.push(key);
+    else            S.features.splice(idx, 1);
+    const tag = document.querySelector('.feat-tag[data-key="' + key + '"]');
+    if (tag) tag.classList.toggle('on', S.features.includes(key));
+    const fc = document.getElementById('feat-count');
+    if (fc) fc.textContent = S.features.length;
+    updateBar();
+  }
+  function gotoHosting() {
     showSection('screen-hosting');
   }
 
-  /* ── Step 3: Hosting ──────────────────────────────────────────────── */
+  /* ── Billing period ──────────────────────────────────────────────── */
+  function setBillPeriod(months) {
+    S.billMonths = months;
+    BILL_MONTHS.forEach(m => {
+      const t = document.getElementById('bill-tab-' + m);
+      if (t) t.classList.toggle('active', m === months);
+    });
+    buildSummary();
+  }
   function selectHost(el, id) {
     document.querySelectorAll('#screen-hosting .opt-card').forEach(c => {
       c.classList.remove('selected');
@@ -1465,6 +1603,7 @@
     if (S.hostId)                         chips.push({ l: HOST_NAMES[S.hostId] });
     if (S.ssl)                            chips.push({ l: '🔒 SSL' });
     if (S.ki && S.kiTier)                 chips.push({ l: '🤖 KI' });
+    if (S.features.length > 0)            chips.push({ l: `⚙️ ${S.features.length} Funktion${S.features.length !== 1 ? 'en' : ''}` });
 
     const bar = document.getElementById('summary-bar');
     if (!chips.length) { bar.style.display = 'none'; return; }
@@ -1475,53 +1614,80 @@
     document.getElementById('bar-total').textContent = m > 0 ? 'ca. ' + m.toFixed(2) + '€/Mo.' : '–';
   }
 
-  /* ── Step 5: Summary ──────────────────────────────────────────────── */
+  /* ── Step 6: Summary ──────────────────────────────────────────────── */
   function gotoSummary() {
     buildSummary();
     showSection('screen-summary');
   }
 
   function buildSummary() {
+    const months   = S.billMonths;
+    const discount = BILL_DISCOUNT[months] || 0;
+    const oneTime  = S.pkgId ? PKG_PRICES[S.pkgId] : 0;
+    const monthly  = calcMonthly();
+    const recurring = monthly * months * (1 - discount);
+    const grandTotal = oneTime + recurring;
     let html = '';
 
-    // Paket (one-time)
+    // ── Einmalige Gebühr ──
     if (S.pkgId) {
-      const p = PKG_PRICES[S.pkgId];
-      html += sec('Website Paket', [
-        row(PKG_NAMES[S.pkgId], `ab ${fmt(p)}€`, '/ einmalige Entwicklung')
+      html += sec('💶 Einmalige Gebühr – Website-Entwicklung', [
+        row(PKG_NAMES[S.pkgId], `ab ${fmt(oneTime)}€`, '/ einmalig')
       ]);
     }
 
-    // Hosting (per 3 months + monthly equiv)
+    // ── Monatliche Betriebskosten ──
+    const monthRows = [];
     if (S.hostId) {
-      const p = HOST_PRICES[S.hostId];
-      html += sec('Hosting', [
-        row(HOST_NAMES[S.hostId],         `${fmt(p)}€`,          '/ 3 Monate'),
-        row('≈ monatlich', `${fmt(p/3)}€`, '/ Monat', true)
-      ]);
+      const hm = HOST_PRICES[S.hostId] / 3;
+      monthRows.push(row(HOST_NAMES[S.hostId], `ca. ${fmt(hm)}€`, '/ Monat'));
     }
-
-    // Domain
     if (S.domain) {
-      const yr = domainYearPrice();
-      html += sec('Domain', [
-        row('www.' + S.domain,  `ca. ${fmt(yr)}€`,      '/ Jahr'),
-        row('≈ monatlich', `ca. ${fmt(yr/12)}€`, '/ Monat', true)
-      ]);
+      monthRows.push(row('Domain: www.' + S.domain, `ca. ${fmt(domainYearPrice()/12)}€`, '/ Monat'));
+    }
+    if (S.ssl) {
+      monthRows.push(row('🔒 Premium SSL', `ca. ${fmt(SSL_YEAR/12)}€`, '/ Monat'));
+    }
+    if (S.ki && S.kiTier) {
+      monthRows.push(row('🤖 KI (' + KI_NAMES[S.kiTier] + ')', `ca. ${fmt(KI_PRICES[S.kiTier])}€`, '/ Monat'));
+    }
+    if (S.ki && !S.kiTier) {
+      monthRows.push(row('🤖 KI-Integration', '–', 'Tier noch nicht gewählt'));
+    }
+    if (monthRows.length) {
+      html += sec(`📅 Monatliche Betriebskosten (ca. ${fmt(monthly)}€/Monat)`, monthRows);
     }
 
-    // Add-ons
-    const addRows = [];
-    if (S.ssl)            addRows.push(row('🔒 Premium SSL Zertifikat', `${fmt(SSL_YEAR)}€`, '/ Jahr'));
-    if (S.ki && S.kiTier) addRows.push(row('🤖 KI-Integration (' + KI_NAMES[S.kiTier] + ')', `${fmt(KI_PRICES[S.kiTier])}€`, '/ Monat'));
-    if (S.ki && !S.kiTier) addRows.push(row('🤖 KI-Integration', '–', 'Tier noch nicht gewählt'));
-    if (addRows.length) html += sec('Add-ons', addRows);
+    // ── Gewählte Funktionen ──
+    if (S.features.length > 0) {
+      const labels = S.features.map(k => {
+        const f = FEATURES.find(x => x.key === k);
+        return f ? f.label : k;
+      }).join(', ');
+      html += `<div class="sum-sec">
+        <div class="sum-sec-title">⚙️ Gewählte Funktionen (${S.features.length})</div>
+        <div class="sum-row" style="flex-wrap:wrap;">
+          <span class="r-label" style="flex:1;min-width:100%;line-height:1.7;color:var(--muted);font-size:.87rem;">${labels}</span>
+        </div>
+      </div>`;
+    }
+
+    // ── Gesamtkosten für Laufzeit ──
+    if (oneTime > 0 || monthly > 0) {
+      const discLabel = discount > 0 ? ` (${(discount*100).toFixed(0)}% Laufzeit-Rabatt)` : '';
+      const periodLabel = months === 1 ? '1 Monat' : months + ' Monate';
+      html += sec(`🧾 Gesamtkosten für ${periodLabel}`, [
+        row('💶 Einmalige Website-Entwicklung', `ab ${fmt(oneTime)}€`, '/ einmalig'),
+        row(`📅 Betriebskosten × ${months} Monat${months>1?'e':''}${discLabel}`, `ca. ${fmt(recurring)}€`, ''),
+      ]);
+    }
 
     document.getElementById('sum-content').innerHTML = html;
-
-    const m = calcMonthly();
+    const months_label = months === 1 ? '1 Monat' : months + ' Monate';
+    document.getElementById('sum-grand-label').textContent =
+      `Gesamtkosten für ${months_label} (Richtwert)`;
     document.getElementById('sum-grand').textContent =
-      m > 0 ? 'ca. ' + fmt(m) + '€ / Monat' : '–';
+      (oneTime > 0 || monthly > 0) ? `ca. ${fmt(grandTotal)}€` : '–';
   }
 
   function sec(title, rows) {
@@ -1540,7 +1706,7 @@
   }
   function fmt(n) { return Number(n).toFixed(2); }
 
-  /* ── Step 6: Contact ──────────────────────────────────────────────── */
+  /* ── Step 7: Contact ──────────────────────────────────────────────── */
   function gotoContact() {
     buildSidebar();
     showSection('screen-contact');
@@ -1553,27 +1719,47 @@
     if (S.hostId)            items.push({ l: 'Hosting',   v: HOST_NAMES[S.hostId] });
     if (S.ssl)               items.push({ l: 'Extra SSL', v: fmt(SSL_YEAR) + '€/Jahr' });
     if (S.ki && S.kiTier)    items.push({ l: 'KI',        v: KI_NAMES[S.kiTier] + ' – ' + fmt(KI_PRICES[S.kiTier]) + '€/Mo.' });
+    if (S.features.length)   items.push({ l: 'Funktionen', v: S.features.length + ' ausgewählt' });
 
     const m = calcMonthly();
+    const months = S.billMonths;
+    const discount = BILL_DISCOUNT[months] || 0;
+    const oneTime = S.pkgId ? PKG_PRICES[S.pkgId] : 0;
+    const grandTotal = oneTime + m * months * (1 - discount);
     let html = items.map(i =>
       `<div class="cs-row"><span class="cs-lbl">${i.l}</span><span class="cs-val">${i.v}</span></div>`
     ).join('');
+    const periodLabel = months === 1 ? '1 Monat' : months + ' Monate';
     html += `<div class="cs-total-line">
-      <span>Geschätzt / Monat</span>
-      <span>ca. ${fmt(m)}€</span>
+      <span>Gesamt (${periodLabel})</span>
+      <span>ca. ${fmt(grandTotal)}€</span>
     </div>`;
     document.getElementById('cs-items').innerHTML = html;
   }
 
   function insertConfig() {
+    const months = S.billMonths;
+    const discount = BILL_DISCOUNT[months] || 0;
+    const oneTime = S.pkgId ? PKG_PRICES[S.pkgId] : 0;
+    const monthly = calcMonthly();
+    const recurring = monthly * months * (1 - discount);
+    const grandTotal = oneTime + recurring;
+    const periodLabel = months === 1 ? '1 Monat' : months + ' Monate';
+
     const lines = ['Meine Konfiguration:', ''];
-    if (S.domain)         lines.push('Domain:   www.' + S.domain);
-    if (S.pkgId)          lines.push('Paket:    ' + PKG_NAMES[S.pkgId] + ' (ab ' + fmt(PKG_PRICES[S.pkgId]) + '€ einmalig)');
-    if (S.hostId)         lines.push('Hosting:  ' + HOST_NAMES[S.hostId] + ' (' + fmt(HOST_PRICES[S.hostId]) + '€/3 Monate)');
-    if (S.ssl)            lines.push('Add-on:   Premium SSL – ' + fmt(SSL_YEAR) + '€/Jahr');
-    if (S.ki && S.kiTier) lines.push('Add-on:   KI-Integration – ' + KI_NAMES[S.kiTier] + ' (' + fmt(KI_PRICES[S.kiTier]) + '€/Mo.)');
+    if (S.domain)         lines.push('Domain:      www.' + S.domain);
+    if (S.pkgId)          lines.push('Paket:       ' + PKG_NAMES[S.pkgId] + ' (ab ' + fmt(oneTime) + '€ einmalig)');
+    if (S.hostId)         lines.push('Hosting:     ' + HOST_NAMES[S.hostId] + ' (ca. ' + fmt(HOST_PRICES[S.hostId]/3) + '€/Monat)');
+    if (S.ssl)            lines.push('Add-on:      Premium SSL – ' + fmt(SSL_YEAR) + '€/Jahr');
+    if (S.ki && S.kiTier) lines.push('Add-on:      KI – ' + KI_NAMES[S.kiTier] + ' (' + fmt(KI_PRICES[S.kiTier]) + '€/Mo.)');
+    if (S.features.length) {
+      const labels = S.features.map(k => { const f = FEATURES.find(x=>x.key===k); return f ? f.label : k; });
+      lines.push('Funktionen:  ' + labels.join(', '));
+    }
     lines.push('');
-    lines.push('Geschätzter monatlicher Preis: ca. ' + fmt(calcMonthly()) + '€/Monat');
+    lines.push('Laufzeit:    ' + periodLabel + (discount > 0 ? ' (' + (discount*100).toFixed(0) + '% Rabatt)' : ''));
+    lines.push('Monatliche Kosten: ca. ' + fmt(monthly) + '€/Monat');
+    lines.push('Gesamtkosten für ' + periodLabel + ': ca. ' + fmt(grandTotal) + '€');
     lines.push('');
     lines.push('Meine Fragen:');
     lines.push('');
@@ -1649,6 +1835,15 @@
   })();
 
   /* ── Boot ─────────────────────────────────────────────────────────── */
+  // Render feature tag buttons
+  (function initFeatTags() {
+    const container = document.getElementById('feat-tag-container');
+    if (!container) return;
+    container.innerHTML = FEATURES.map(f =>
+      `<button class="feat-tag" data-key="${f.key}" onclick="selectFeat('${f.key}')">${f.label}</button>`
+    ).join('');
+  })();
+
   showSection('screen-start');
 
   /* ═══════════════ ANTI-BOT / VERIFF INTEGRATION ═══════════════════ */
