@@ -1548,7 +1548,7 @@
               <div class="addon-ico">☁️</div>
               <div>
                 <h3>Connect to Server (iPad Dateien)</h3>
-                <div class="a-tag">Cloud-Speicher unter deiner eigenen Domain · ohne Speicherlimit</div>
+                <div class="a-tag">Cloud-Speicher unter deiner eigenen Domain ·&nbsp;ohne Speicherlimit</div>
               </div>
             </div>
             <label class="toggle" onclick="event.stopPropagation()">
@@ -1561,7 +1561,7 @@
               Verbinde die iPad-Dateien-App direkt mit deinem eigenen Server. Der Zugriff läuft über deine
               Domain statt über einen Drittanbieter-Cloudspeicher.
             </p>
-            <div class="server-endpoint">https://<span id="fileserver-endpoint">files.deine-domain.de</span></div>
+            <div class="server-endpoint">https://<span id="fileserver-endpoint"></span></div>
             <ul class="addon-feat">
               <li>Dateien-App öffnen → Menü „Mit Server verbinden“</li>
               <li>Server-Adresse eintragen und mit deinen Zugangsdaten anmelden</li>
@@ -1718,7 +1718,8 @@
   const KI_NAMES  = { 1: 'KI Starter', 2: 'KI Standard', 3: 'KI Pro' };
   const KI_PRICES = { 1: 19.99, 2: 39.99, 3: 79.99 };  // per month
   const SSL_YEAR  = 120;
-  const STORAGE_SAVINGS_BY_HOST = { 1: 9.99, 2: 19.99, 3: 39.99, 4: 79.99 }; // estimated monthly savings
+  const DEFAULT_FILESERVER_DOMAIN = 'deine-domain.de';
+  const STORAGE_SAVINGS_BY_HOST = { 1: 9.99, 2: 19.99, 3: 39.99, 4: 79.99 }; // estimated monthly savings by hostId
 
   const FEATURES = [
     { key: 'kontaktformular', label: '📬 Kontaktformular' },
@@ -1928,7 +1929,7 @@
   }
 
   function fileServerEndpoint() {
-    const base = (S.domain || 'deine-domain.de').toLowerCase().replace(/^www\./, '');
+    const base = (S.domain || DEFAULT_FILESERVER_DOMAIN).toLowerCase().replace(/^www\./, '');
     return 'files.' + base;
   }
 

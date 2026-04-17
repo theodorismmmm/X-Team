@@ -15,7 +15,7 @@ Dieses Projekt enthält jetzt im Konfigurator ein Add-on **„Connect to Server 
 ### iPad Tutorial (Dateien-App)
 
 1. **Dateien-App** öffnen.
-2. Im Browser „…“ wählen.
+2. Im Tab **„Durchsuchen“** auf „…“ tippen.
 3. **Mit Server verbinden** auswählen.
 4. Server-Adresse eintragen (aus dem Konfigurator).
 5. Mit deinen Server-Zugangsdaten anmelden.
