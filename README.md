@@ -1,16 +1,15 @@
 # X-Team
 
-## Connect to Server (iPad Dateien-App) – Cloud-Speicher unter deiner Domain
+## Connect to Server (iPad Dateien-App) – persönliche X-Team Cloud
 
-Dieses Projekt enthält jetzt im Konfigurator ein Add-on **„Connect to Server (iPad Dateien)”**.
+Dieses Projekt enthält im Konfigurator ein Add-on **„Connect to Server (deine iPad Cloud)”** für persönliche Nutzung.
 
 ### So nutzt du es
 
 1. Öffne den Konfigurator in `index.html`.
-2. Gib deine Domain ein (z. B. `meinprojekt.de`).
-3. Gehe bis **„Optionale Erweiterungen”**.
-4. Aktiviere **„Connect to Server (iPad Dateien)”**.
-5. Verwende die angezeigte Adresse, z. B. `https://files.meinprojekt.de`.
+2. Gehe bis **„Optionale Erweiterungen”**.
+3. Aktiviere **„Connect to Server (deine iPad Cloud)”**.
+4. Verwende die feste X-Team-Adresse: `https://cloud.x-team.de`.
 
 ### iPad Tutorial (Dateien-App)
 
@@ -22,15 +21,5 @@ Dieses Projekt enthält jetzt im Konfigurator ein Add-on **„Connect to Server 
 
 ### Speicherlimit & Domain
 
-- Der Server-Endpunkt läuft unter deiner eigenen Domain (`files.deine-domain.de`).
-- Im Konfigurator ist der Speicher als **ohne festes Limit** beschrieben (abhängig von Infrastruktur/Fair-Use).
-
-### Wie viel kannst du sparen?
-
-- Bei aktiviertem Add-on zeigt der Konfigurator ein monatliches **Sparpotenzial** gegenüber externer Cloud an.
-- Als Vergleichsbasis dienen typische externe Cloud-Abos (z. B. iCloud/Dropbox/Google Drive, je nach Paketklasse).
-- Der Wert richtet sich nach dem gewählten Hosting-Paket und wird in:
-  - Add-on-Ansicht
-  - Kostenübersicht
-  - Kontakt-Zusammenfassung
-  angezeigt.
+- Der Server-Endpunkt läuft auf der X-Team-Domain: `cloud.x-team.de`.
+- **Kostenlos enthalten:** `25 GB` Speicher für deine persönliche iPad-Cloud.
