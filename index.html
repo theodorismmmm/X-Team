@@ -1548,7 +1548,7 @@
               <div class="addon-ico">☁️</div>
               <div>
                 <h3>Connect to Server (deine iPad Cloud)</h3>
-                <div class="a-tag">Persönliche Cloud auf der X-Team-Domain&nbsp;·&nbsp;25 GB kostenlos</div>
+                <div class="a-tag">Persönliche Cloud auf der X-Team-Domain&nbsp;·&nbsp;<span id="fileserver-free-storage-short">25 GB</span> kostenlos</div>
               </div>
             </div>
             <label class="toggle" onclick="event.stopPropagation()">
@@ -1566,7 +1566,7 @@
               <li>Dateien-App öffnen → Menü „Mit Server verbinden“</li>
               <li>Server-Adresse eintragen und mit deinen Zugangsdaten anmelden</li>
               <li>Server läuft auf der X-Team-Domain für deine persönliche Cloud-Nutzung</li>
-              <li>25 GB Speicher kostenlos enthalten</li>
+              <li><span id="fileserver-free-storage-list">25 GB</span> Speicher kostenlos enthalten</li>
             </ul>
             <div class="savings-pill" id="fileserver-free-storage">Kostenlos enthalten: 25 GB</div>
           </div>
@@ -1936,6 +1936,10 @@
     const endpoint = fileServerEndpoint();
     const endpointEl = document.getElementById('fileserver-endpoint');
     if (endpointEl) endpointEl.textContent = endpoint;
+    const freeStorageShortEl = document.getElementById('fileserver-free-storage-short');
+    if (freeStorageShortEl) freeStorageShortEl.textContent = FREE_CLOUD_STORAGE_GB + ' GB';
+    const freeStorageListEl = document.getElementById('fileserver-free-storage-list');
+    if (freeStorageListEl) freeStorageListEl.textContent = FREE_CLOUD_STORAGE_GB + ' GB';
     const freeStorageEl = document.getElementById('fileserver-free-storage');
     if (freeStorageEl) freeStorageEl.textContent = 'Kostenlos enthalten: ' + FREE_CLOUD_STORAGE_GB + ' GB';
   }
