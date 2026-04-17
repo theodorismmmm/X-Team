@@ -2010,7 +2010,7 @@
       monthRows.push(row('🤖 KI-Integration', '–', 'Tier noch nicht gewählt'));
     }
     if (S.fileserver) {
-      monthRows.push(row('☁️ Connect to Server (' + XTEAM_PERSONAL_CLOUD_HOST + ')', 'inklusive', '/ Monat'));
+      monthRows.push(row('☁️ Private iPad Cloud (' + XTEAM_PERSONAL_CLOUD_HOST + ')', 'inklusive', ''));
       monthRows.push(row('🆓 Kostenloser Cloud-Speicher', FREE_CLOUD_STORAGE_GB + ' GB', '', /* muted */ true));
     }
     if (monthRows.length) {
@@ -2078,7 +2078,7 @@
     if (S.hostId)            items.push({ l: 'Hosting',   v: HOST_NAMES[S.hostId] });
     if (S.ssl)               items.push({ l: 'Extra SSL', v: fmt(SSL_YEAR) + '€/Jahr' });
     if (S.ki && S.kiTier)    items.push({ l: 'KI',        v: KI_NAMES[S.kiTier] + ' – ' + fmt(KI_PRICES[S.kiTier]) + '€/Mo.' });
-    if (S.fileserver)        items.push({ l: 'Cloud-Speicher', v: XTEAM_PERSONAL_CLOUD_HOST + ' · persönliche iPad Cloud' });
+    if (S.fileserver)        items.push({ l: 'Private Cloud', v: XTEAM_PERSONAL_CLOUD_HOST + ' · nur für persönliche Nutzung' });
     if (S.fileserver)        items.push({ l: 'Kostenloser Speicher', v: FREE_CLOUD_STORAGE_GB + ' GB' });
     if (S.features.length)   items.push({ l: 'Funktionen', v: S.features.length + ' ausgewählt' });
 
@@ -2113,7 +2113,7 @@
     if (S.hostId)         lines.push('Hosting:     ' + HOST_NAMES[S.hostId] + ' (ca. ' + fmt(HOST_PRICES[S.hostId]/3) + '€/Monat)');
     if (S.ssl)            lines.push('Add-on:      Premium SSL – ' + fmt(SSL_YEAR) + '€/Jahr');
     if (S.ki && S.kiTier) lines.push('Add-on:      KI – ' + KI_NAMES[S.kiTier] + ' (' + fmt(KI_PRICES[S.kiTier]) + '€/Mo.)');
-    if (S.fileserver)     lines.push('Add-on:      Connect to Server – https://' + XTEAM_PERSONAL_CLOUD_HOST + ' (persönliche iPad Cloud)');
+    if (S.fileserver)     lines.push('Private Cloud: https://' + XTEAM_PERSONAL_CLOUD_HOST + ' (nur für persönliche Nutzung)');
     if (S.fileserver)     lines.push('Kostenloser Speicher: ' + FREE_CLOUD_STORAGE_GB + ' GB');
     if (S.features.length) {
       const labels = S.features.map(k => { const f = FEATURES.find(x=>x.key===k); return f ? f.label : k; });

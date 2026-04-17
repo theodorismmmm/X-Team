@@ -3,6 +3,7 @@
 ## Connect to Server (iPad Dateien-App) – Persönliche X-Team Cloud
 
 Dieses Projekt enthält im Konfigurator ein Add-on **„Connect to Server (deine iPad Cloud)”** für persönliche Nutzung.
+Es ist für **private Dateispeicherung** gedacht (kein Verkauf, kein Abo-Angebot).
 
 ### So nutzt du es
 
