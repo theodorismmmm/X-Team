@@ -1548,7 +1548,7 @@
               <div class="addon-ico">☁️</div>
               <div>
                 <h3>Connect to Server (iPad Dateien)</h3>
-                <div class="a-tag">Cloud-Speicher unter deiner eigenen Domain ·&nbsp;ohne Speicherlimit</div>
+                <div class="a-tag">Cloud-Speicher unter deiner eigenen Domain&nbsp;·&nbsp;ohne Speicherlimit</div>
               </div>
             </div>
             <label class="toggle" onclick="event.stopPropagation()">
@@ -1718,7 +1718,7 @@
   const KI_NAMES  = { 1: 'KI Starter', 2: 'KI Standard', 3: 'KI Pro' };
   const KI_PRICES = { 1: 19.99, 2: 39.99, 3: 79.99 };  // per month
   const SSL_YEAR  = 120;
-  const DEFAULT_FILESERVER_DOMAIN = 'deine-domain.de';
+  const FILESERVER_EXAMPLE_DOMAIN = 'deine-domain.de';
   const STORAGE_SAVINGS_BY_HOST = { 1: 9.99, 2: 19.99, 3: 39.99, 4: 79.99 }; // estimated monthly savings by hostId
 
   const FEATURES = [
@@ -1929,13 +1929,22 @@
   }
 
   function fileServerEndpoint() {
-    const base = (S.domain || DEFAULT_FILESERVER_DOMAIN).toLowerCase().replace(/^www\./, '');
+    const base = (S.domain || FILESERVER_EXAMPLE_DOMAIN).toLowerCase().replace(/^www\./, '');
     return 'files.' + base;
   }
 
   function storageSavingsMonthly() {
-    if (!S.fileserver || !S.hostId) return 0;
-    return STORAGE_SAVINGS_BY_HOST[S.hostId] || 0;
+    if (!S.fileserver || !S.hostId) return null;
+    if (Object.prototype.hasOwnProperty.call(STORAGE_SAVINGS_BY_HOST, S.hostId)) {
+      return STORAGE_SAVINGS_BY_HOST[S.hostId];
+    }
+    return null;
+  }
+
+  function storageSavingsLabel(prefix) {
+    const savings = storageSavingsMonthly();
+    if (savings === null) return 'Auf Anfrage';
+    return prefix ? `${prefix}${fmt(savings)}€ / Monat` : `${fmt(savings)}€ / Monat`;
   }
 
   function updateFileServerInfo() {
@@ -1943,7 +1952,7 @@
     const endpointEl = document.getElementById('fileserver-endpoint');
     if (endpointEl) endpointEl.textContent = endpoint;
     const savingsEl = document.getElementById('fileserver-savings');
-    if (savingsEl) savingsEl.textContent = 'Bis zu ' + fmt(storageSavingsMonthly()) + '€ / Monat';
+    if (savingsEl) savingsEl.textContent = storageSavingsLabel('Bis zu ');
   }
 
   /* ── Monthly total ────────────────────────────────────────────────── */
@@ -2019,7 +2028,7 @@
     }
     if (S.fileserver) {
       monthRows.push(row('☁️ Connect to Server (' + fileServerEndpoint() + ')', 'inklusive', '/ Monat'));
-      monthRows.push(row('💸 Potenzielle Ersparnis ggü. externer Cloud', `bis zu ${fmt(storageSavingsMonthly())}€`, '/ Monat', true));
+      monthRows.push(row('💸 Potenzielle Ersparnis ggü. externer Cloud', `bis zu ${storageSavingsLabel()}`, '', true));
     }
     if (monthRows.length) {
       html += sec(`📅 Monatliche Betriebskosten (ca. ${fmt(monthly)}€/Monat)`, monthRows);
@@ -2087,7 +2096,7 @@
     if (S.ssl)               items.push({ l: 'Extra SSL', v: fmt(SSL_YEAR) + '€/Jahr' });
     if (S.ki && S.kiTier)    items.push({ l: 'KI',        v: KI_NAMES[S.kiTier] + ' – ' + fmt(KI_PRICES[S.kiTier]) + '€/Mo.' });
     if (S.fileserver)        items.push({ l: 'Cloud-Speicher', v: fileServerEndpoint() + ' · ohne Speicherlimit' });
-    if (S.fileserver)        items.push({ l: 'Sparpotenzial', v: 'bis zu ' + fmt(storageSavingsMonthly()) + '€/Monat' });
+    if (S.fileserver)        items.push({ l: 'Sparpotenzial', v: 'bis zu ' + storageSavingsLabel() });
     if (S.features.length)   items.push({ l: 'Funktionen', v: S.features.length + ' ausgewählt' });
 
     const m = calcMonthly();
@@ -2122,7 +2131,7 @@
     if (S.ssl)            lines.push('Add-on:      Premium SSL – ' + fmt(SSL_YEAR) + '€/Jahr');
     if (S.ki && S.kiTier) lines.push('Add-on:      KI – ' + KI_NAMES[S.kiTier] + ' (' + fmt(KI_PRICES[S.kiTier]) + '€/Mo.)');
     if (S.fileserver)     lines.push('Add-on:      Connect to Server – https://' + fileServerEndpoint() + ' (ohne Speicherlimit)');
-    if (S.fileserver)     lines.push('Sparpotenzial: bis zu ' + fmt(storageSavingsMonthly()) + '€/Monat ggü. externer Cloud');
+    if (S.fileserver)     lines.push('Sparpotenzial: bis zu ' + storageSavingsLabel() + ' ggü. externer Cloud');
     if (S.features.length) {
       const labels = S.features.map(k => { const f = FEATURES.find(x=>x.key===k); return f ? f.label : k; });
       lines.push('Funktionen:  ' + labels.join(', '));

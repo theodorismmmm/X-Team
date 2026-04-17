@@ -22,7 +22,7 @@ Dieses Projekt enthält jetzt im Konfigurator ein Add-on **„Connect to Server 
 
 ### Speicherlimit & Domain
 
-- Der Server-Endpunkt läuft unter deiner eigenen Domain (`files.deine-domain`).
+- Der Server-Endpunkt läuft unter deiner eigenen Domain (`files.deine-domain.de`).
 - Im Konfigurator ist der Speicher als **ohne festes Limit** beschrieben (abhängig von Infrastruktur/Fair-Use).
 
 ### Wie viel kannst du sparen?
