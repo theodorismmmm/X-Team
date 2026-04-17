@@ -28,7 +28,7 @@ Dieses Projekt enthält jetzt im Konfigurator ein Add-on **„Connect to Server 
 ### Wie viel kannst du sparen?
 
 - Bei aktiviertem Add-on zeigt der Konfigurator ein monatliches **Sparpotenzial** gegenüber externer Cloud an.
-- Als Vergleichsbasis nutzt der Richtwert typische externe Cloud-Abos (z. B. iCloud/Dropbox/Google Drive, je nach Paketklasse).
+- Als Vergleichsbasis dienen typische externe Cloud-Abos (z. B. iCloud/Dropbox/Google Drive, je nach Paketklasse).
 - Der Wert richtet sich nach dem gewählten Hosting-Paket und wird in:
   - Add-on-Ansicht
   - Kostenübersicht

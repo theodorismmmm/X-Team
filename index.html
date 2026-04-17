@@ -1719,7 +1719,7 @@
   const KI_PRICES = { 1: 19.99, 2: 39.99, 3: 79.99 };  // per month
   const SSL_YEAR  = 120;
   const FILESERVER_EXAMPLE_DOMAIN = 'deine-domain.de';
-  const STORAGE_SAVINGS_BY_HOST = { 1: 9.99, 2: 19.99, 3: 39.99, 4: 79.99 }; // estimated monthly savings vs typical external cloud plans (EUR)
+  const STORAGE_SAVINGS_BY_HOST = { 1: 9.99, 2: 19.99, 3: 39.99, 4: 79.99 }; // estimated savings vs external cloud plans (EUR), keys: 1=Hobby, 2=Basic, 3=Profi, 4=Super
 
   const FEATURES = [
     { key: 'kontaktformular', label: '📬 Kontaktformular' },
@@ -1935,10 +1935,7 @@
 
   function storageSavingsMonthly() {
     if (!S.fileserver || !S.hostId) return null;
-    if (Object.prototype.hasOwnProperty.call(STORAGE_SAVINGS_BY_HOST, S.hostId)) {
-      return STORAGE_SAVINGS_BY_HOST[S.hostId];
-    }
-    return null;
+    return STORAGE_SAVINGS_BY_HOST[S.hostId] ?? null;
   }
 
   function storageSavingsLabel(prefix) {
@@ -2028,7 +2025,7 @@
     }
     if (S.fileserver) {
       monthRows.push(row('☁️ Connect to Server (' + fileServerEndpoint() + ')', 'inklusive', '/ Monat'));
-      monthRows.push(row('💸 Potenzielle Ersparnis ggü. externer Cloud', storageSavingsLabel('bis zu '), '', true));
+      monthRows.push(row('💸 Potenzielle Ersparnis gegenüber externer Cloud', storageSavingsLabel('bis zu '), '', true));
     }
     if (monthRows.length) {
       html += sec(`📅 Monatliche Betriebskosten (ca. ${fmt(monthly)}€/Monat)`, monthRows);
