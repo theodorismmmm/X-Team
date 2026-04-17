@@ -1,6 +1,6 @@
 # X-Team
 
-## Connect to Server (iPad Dateien-App) – persönliche X-Team Cloud
+## Connect to Server (iPad Dateien-App) – Persönliche X-Team Cloud
 
 Dieses Projekt enthält im Konfigurator ein Add-on **„Connect to Server (deine iPad Cloud)”** für persönliche Nutzung.
 
@@ -22,4 +22,4 @@ Dieses Projekt enthält im Konfigurator ein Add-on **„Connect to Server (deine
 ### Speicherlimit & Domain
 
 - Der Server-Endpunkt läuft auf der X-Team-Domain: `cloud.x-team.de`.
-- **Kostenlos enthalten:** `25 GB` Speicher für deine persönliche iPad-Cloud.
+- **Kostenlos enthalten:** `25 GB` Speicher für deine persönliche iPad-Cloud (Wert wird in `index.html` über `FREE_CLOUD_STORAGE_GB` gepflegt).
