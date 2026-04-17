@@ -1719,7 +1719,7 @@
   const KI_PRICES = { 1: 19.99, 2: 39.99, 3: 79.99 };  // per month
   const SSL_YEAR  = 120;
   const FILESERVER_EXAMPLE_DOMAIN = 'deine-domain.de';
-  const STORAGE_SAVINGS_BY_HOST = { 1: 9.99, 2: 19.99, 3: 39.99, 4: 79.99 }; // estimated monthly savings by hostId
+  const STORAGE_SAVINGS_BY_HOST = { 1: 9.99, 2: 19.99, 3: 39.99, 4: 79.99 }; // estimated monthly savings vs typical external cloud plans (EUR)
 
   const FEATURES = [
     { key: 'kontaktformular', label: '📬 Kontaktformular' },
@@ -1944,7 +1944,7 @@
   function storageSavingsLabel(prefix) {
     const savings = storageSavingsMonthly();
     if (savings === null) return 'Auf Anfrage';
-    return prefix ? `${prefix}${fmt(savings)}€ / Monat` : `${fmt(savings)}€ / Monat`;
+    return (prefix || '') + fmt(savings) + '€ / Monat';
   }
 
   function updateFileServerInfo() {
@@ -2028,7 +2028,7 @@
     }
     if (S.fileserver) {
       monthRows.push(row('☁️ Connect to Server (' + fileServerEndpoint() + ')', 'inklusive', '/ Monat'));
-      monthRows.push(row('💸 Potenzielle Ersparnis ggü. externer Cloud', `bis zu ${storageSavingsLabel()}`, '', true));
+      monthRows.push(row('💸 Potenzielle Ersparnis ggü. externer Cloud', storageSavingsLabel('bis zu '), '', true));
     }
     if (monthRows.length) {
       html += sec(`📅 Monatliche Betriebskosten (ca. ${fmt(monthly)}€/Monat)`, monthRows);
@@ -2096,7 +2096,7 @@
     if (S.ssl)               items.push({ l: 'Extra SSL', v: fmt(SSL_YEAR) + '€/Jahr' });
     if (S.ki && S.kiTier)    items.push({ l: 'KI',        v: KI_NAMES[S.kiTier] + ' – ' + fmt(KI_PRICES[S.kiTier]) + '€/Mo.' });
     if (S.fileserver)        items.push({ l: 'Cloud-Speicher', v: fileServerEndpoint() + ' · ohne Speicherlimit' });
-    if (S.fileserver)        items.push({ l: 'Sparpotenzial', v: 'bis zu ' + storageSavingsLabel() });
+    if (S.fileserver)        items.push({ l: 'Sparpotenzial', v: storageSavingsLabel('bis zu ') });
     if (S.features.length)   items.push({ l: 'Funktionen', v: S.features.length + ' ausgewählt' });
 
     const m = calcMonthly();
@@ -2131,7 +2131,7 @@
     if (S.ssl)            lines.push('Add-on:      Premium SSL – ' + fmt(SSL_YEAR) + '€/Jahr');
     if (S.ki && S.kiTier) lines.push('Add-on:      KI – ' + KI_NAMES[S.kiTier] + ' (' + fmt(KI_PRICES[S.kiTier]) + '€/Mo.)');
     if (S.fileserver)     lines.push('Add-on:      Connect to Server – https://' + fileServerEndpoint() + ' (ohne Speicherlimit)');
-    if (S.fileserver)     lines.push('Sparpotenzial: bis zu ' + storageSavingsLabel() + ' ggü. externer Cloud');
+    if (S.fileserver)     lines.push('Sparpotenzial: ' + storageSavingsLabel('bis zu ') + ' ggü. externer Cloud');
     if (S.features.length) {
       const labels = S.features.map(k => { const f = FEATURES.find(x=>x.key===k); return f ? f.label : k; });
       lines.push('Funktionen:  ' + labels.join(', '));
