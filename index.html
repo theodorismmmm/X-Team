@@ -364,6 +364,26 @@
       display: flex; align-items: flex-start; gap: 8px; line-height: 1.45;
     }
     .addon-feat li::before { content: '→'; color: var(--accent); font-weight: 900; flex-shrink: 0; }
+    .server-endpoint {
+      display: inline-block;
+      background: #f8fafc;
+      border: 1px solid var(--border-light);
+      padding: 8px 10px;
+      margin: 4px 0 14px;
+      font-size: .82rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      color: var(--dark);
+    }
+    .savings-pill {
+      display: inline-block;
+      background: var(--success-bg);
+      border: 1px solid #bbf7d0;
+      color: #166534;
+      font-size: .8rem;
+      font-weight: 800;
+      padding: 5px 10px;
+      margin-top: 8px;
+    }
     /* KI Tiers */
     .ki-tiers {
       display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 20px;
@@ -1521,6 +1541,37 @@
           </div>
         </div>
 
+        <!-- Add-on 3: Connect to Server -->
+        <div class="addon-card" id="ac-fileserver">
+          <div class="addon-head" onclick="toggleAddon('fileserver')">
+            <div class="addon-head-left">
+              <div class="addon-ico">☁️</div>
+              <div>
+                <h3>Connect to Server (iPad Dateien)</h3>
+                <div class="a-tag">Cloud-Speicher unter deiner eigenen Domain · ohne Speicherlimit</div>
+              </div>
+            </div>
+            <label class="toggle" onclick="event.stopPropagation()">
+              <input type="checkbox" id="chk-fileserver" onchange="toggleAddon('fileserver', this.checked)" />
+              <span class="tgl-slider"></span>
+            </label>
+          </div>
+          <div class="addon-body hidden" id="ab-fileserver">
+            <p>
+              Verbinde die iPad-Dateien-App direkt mit deinem eigenen Server. Der Zugriff läuft über deine
+              Domain statt über einen Drittanbieter-Cloudspeicher.
+            </p>
+            <div class="server-endpoint">https://<span id="fileserver-endpoint">files.deine-domain.de</span></div>
+            <ul class="addon-feat">
+              <li>Dateien-App öffnen → Menü „Mit Server verbinden“</li>
+              <li>Server-Adresse eintragen und mit deinen Zugangsdaten anmelden</li>
+              <li>Server läuft unter deiner Domain und kann für Cloud-Speicher genutzt werden</li>
+              <li>Kein festes Speicherlimit im Konfigurator (abhängig von Infrastruktur/Fair-Use)</li>
+            </ul>
+            <div class="savings-pill" id="fileserver-savings">Bis zu 0.00€ / Monat</div>
+          </div>
+        </div>
+
       </div>
       <div class="nav-btns">
         <button class="btn btn-secondary" onclick="showSection('screen-hosting')">← Zurück</button>
@@ -1667,6 +1718,7 @@
   const KI_NAMES  = { 1: 'KI Starter', 2: 'KI Standard', 3: 'KI Pro' };
   const KI_PRICES = { 1: 19.99, 2: 39.99, 3: 79.99 };  // per month
   const SSL_YEAR  = 120;
+  const STORAGE_SAVINGS_BY_HOST = { 1: 9.99, 2: 19.99, 3: 39.99, 4: 79.99 }; // estimated monthly savings
 
   const FEATURES = [
     { key: 'kontaktformular', label: '📬 Kontaktformular' },
@@ -1702,7 +1754,7 @@
   /* ── State ────────────────────────────────────────────────────────── */
   const S = {
     domain: '', pkgId: null, hostId: null,
-    ssl: false, ki: false, kiTier: null,
+    ssl: false, ki: false, kiTier: null, fileserver: false,
     features: [],    // selected feature keys
     billMonths: 1,   // billing period
   };
@@ -1723,6 +1775,7 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
     updateProgress(id);
     updateBar();
+    updateFileServerInfo();
   }
 
   function updateProgress(id) {
@@ -1743,15 +1796,15 @@
 
   /* ── Reset / Home ─────────────────────────────────────────────────── */
   function goHome() {
-    Object.assign(S, { domain:'', pkgId:null, hostId:null, ssl:false, ki:false, kiTier:null, features:[], billMonths:1 });
+    Object.assign(S, { domain:'', pkgId:null, hostId:null, ssl:false, ki:false, kiTier:null, fileserver:false, features:[], billMonths:1 });
 
     document.querySelectorAll('.opt-card.selected').forEach(c => c.classList.remove('selected'));
     document.querySelectorAll('.check-box').forEach(c => { c.textContent = ''; });
     document.querySelectorAll('.ki-tier.sel').forEach(c => c.classList.remove('sel'));
     document.querySelectorAll('input[type=checkbox]').forEach(c => { c.checked = false; });
     document.querySelectorAll('.feat-tag.on').forEach(t => t.classList.remove('on'));
-    ['ab-ssl','ab-ki'].forEach(id => document.getElementById(id).classList.add('hidden'));
-    ['ac-ssl','ac-ki'].forEach(id => document.getElementById(id).classList.remove('on'));
+    ['ab-ssl','ab-ki','ab-fileserver'].forEach(id => document.getElementById(id).classList.add('hidden'));
+    ['ac-ssl','ac-ki','ac-fileserver'].forEach(id => document.getElementById(id).classList.remove('on'));
     const fc = document.getElementById('feat-count');
     if (fc) fc.textContent = '0';
     BILL_MONTHS.forEach(m => {
@@ -1778,6 +1831,7 @@
     const v = document.getElementById('domain-input').value.trim();
     S.domain = v;
     document.getElementById('btn-domain-next').style.display = v.length >= 3 ? 'block' : 'none';
+    updateFileServerInfo();
     updateBar();
   }
   function gotoPackage() {
@@ -1873,6 +1927,24 @@
     return DOMAIN_TLD_PRICES[tld] || 12;
   }
 
+  function fileServerEndpoint() {
+    const base = (S.domain || 'deine-domain.de').toLowerCase().replace(/^www\./, '');
+    return 'files.' + base;
+  }
+
+  function storageSavingsMonthly() {
+    if (!S.fileserver || !S.hostId) return 0;
+    return STORAGE_SAVINGS_BY_HOST[S.hostId] || 0;
+  }
+
+  function updateFileServerInfo() {
+    const endpoint = fileServerEndpoint();
+    const endpointEl = document.getElementById('fileserver-endpoint');
+    if (endpointEl) endpointEl.textContent = endpoint;
+    const savingsEl = document.getElementById('fileserver-savings');
+    if (savingsEl) savingsEl.textContent = 'Bis zu ' + fmt(storageSavingsMonthly()) + '€ / Monat';
+  }
+
   /* ── Monthly total ────────────────────────────────────────────────── */
   function calcMonthly() {
     let m = 0;
@@ -1885,12 +1957,14 @@
 
   /* ── Sticky bar ───────────────────────────────────────────────────── */
   function updateBar() {
+    updateFileServerInfo();
     const chips = [];
     if (S.domain)                         chips.push({ l: S.domain });
     if (S.pkgId)                          chips.push({ l: PKG_NAMES[S.pkgId], ac: true });
     if (S.hostId)                         chips.push({ l: HOST_NAMES[S.hostId] });
     if (S.ssl)                            chips.push({ l: '🔒 SSL' });
     if (S.ki && S.kiTier)                 chips.push({ l: '🤖 KI' });
+    if (S.fileserver)                     chips.push({ l: '☁️ Connect to Server' });
     if (S.features.length > 0)            chips.push({ l: `⚙️ ${S.features.length} Funktion${S.features.length !== 1 ? 'en' : ''}` });
 
     const bar = document.getElementById('summary-bar');
@@ -1941,6 +2015,10 @@
     }
     if (S.ki && !S.kiTier) {
       monthRows.push(row('🤖 KI-Integration', '–', 'Tier noch nicht gewählt'));
+    }
+    if (S.fileserver) {
+      monthRows.push(row('☁️ Connect to Server (' + fileServerEndpoint() + ')', 'inklusive', '/ Monat'));
+      monthRows.push(row('💸 Potenzielle Ersparnis ggü. externer Cloud', `bis zu ${fmt(storageSavingsMonthly())}€`, '/ Monat', true));
     }
     if (monthRows.length) {
       html += sec(`📅 Monatliche Betriebskosten (ca. ${fmt(monthly)}€/Monat)`, monthRows);
@@ -2007,6 +2085,8 @@
     if (S.hostId)            items.push({ l: 'Hosting',   v: HOST_NAMES[S.hostId] });
     if (S.ssl)               items.push({ l: 'Extra SSL', v: fmt(SSL_YEAR) + '€/Jahr' });
     if (S.ki && S.kiTier)    items.push({ l: 'KI',        v: KI_NAMES[S.kiTier] + ' – ' + fmt(KI_PRICES[S.kiTier]) + '€/Mo.' });
+    if (S.fileserver)        items.push({ l: 'Cloud-Speicher', v: fileServerEndpoint() + ' · ohne Speicherlimit' });
+    if (S.fileserver)        items.push({ l: 'Sparpotenzial', v: 'bis zu ' + fmt(storageSavingsMonthly()) + '€/Monat' });
     if (S.features.length)   items.push({ l: 'Funktionen', v: S.features.length + ' ausgewählt' });
 
     const m = calcMonthly();
@@ -2040,6 +2120,8 @@
     if (S.hostId)         lines.push('Hosting:     ' + HOST_NAMES[S.hostId] + ' (ca. ' + fmt(HOST_PRICES[S.hostId]/3) + '€/Monat)');
     if (S.ssl)            lines.push('Add-on:      Premium SSL – ' + fmt(SSL_YEAR) + '€/Jahr');
     if (S.ki && S.kiTier) lines.push('Add-on:      KI – ' + KI_NAMES[S.kiTier] + ' (' + fmt(KI_PRICES[S.kiTier]) + '€/Mo.)');
+    if (S.fileserver)     lines.push('Add-on:      Connect to Server – https://' + fileServerEndpoint() + ' (ohne Speicherlimit)');
+    if (S.fileserver)     lines.push('Sparpotenzial: bis zu ' + fmt(storageSavingsMonthly()) + '€/Monat ggü. externer Cloud');
     if (S.features.length) {
       const labels = S.features.map(k => { const f = FEATURES.find(x=>x.key===k); return f ? f.label : k; });
       lines.push('Funktionen:  ' + labels.join(', '));
